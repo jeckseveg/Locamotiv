@@ -1,0 +1,57 @@
+body {
+    margin: 0; /* Remove default body margin */
+    font-family: sans-serif;
+  }
+  
+  .container {
+    display: flex; /* Use flexbox for layout */
+
+    height: 100vh; /* Set container height to 100vh (full viewport height) */
+  }
+  
+  .right-content {
+    flex: 3;
+    padding: 20px;
+    align-items: center; /* Center video vertically */
+    /* order: 2; */
+  }
+  
+  .left-content {
+    flex: 2; /* Text content takes up half the space */
+    padding: 20px; /* Add some padding to the text content */
+    align-items: center;
+  }
+  
+  video {
+    max-width: 100%; /* Adjust max-width as needed for responsiveness */
+    height: auto; /* Maintain aspect ratio */
+  }
+
+  .container {
+    align-items: flex-start;
+  }
+
+  .button-container {
+    /*display: flex; /* Makes buttons appear horizontally */
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;  /*Centers buttons horizontally within the container */
+    margin-top: 20px; /* Adds space above the buttons */
+  }
+  
+  .button-container button {
+    margin: 5px; /* Adds space between buttons */
+    padding: 10px 20px; /* Adds padding to buttons */
+    background-color: #333; /* Sets button background color */
+    color: #fff; /* Sets button text color */
+    border: none; /* Removes default button border */
+    border-radius: 5px; 
+  }
+
+  .app-container{
+    display: flex;
+    align-items: center;
+    justify-items: center;
+  }

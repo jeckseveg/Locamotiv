@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+ <head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <meta name="description" content="Data Dashboard">
+   <meta name="author" content="Jack Savage">
+   <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+   <link rel="stylesheet" href="static/libs/style.css">
+   <title>Data Dashboard</title>
+ </head>
+
+
+ <!-- INFO AND ABOUT SECTIONS -->
+ <body>
+       <div class="about">
+         <h1 style="text-align:center;">VizML Final Project</h1>
+         <h4>The code can be found on Github <a href="https://github.com/">here</a></h4>
+       </div>
+      
+       <!-- load javascript here -->
+      <script src="static/libs/visuals.js"></script>
+
+      <!-- MAIN BODY OF WEB APP -->
+      <div class="app-container" id="app_container">
+        
+        
+        <!-- Left section -->
+        <div class="left-content" id="left_section">
+          <h2 style="text-align:center;">User Controls</h2>
+          <p style="text-align:center;">Select location</p>
+          <p style="text-align:center;">Playback speed adjustment</p>
+          <p style="text-align:center;">Choose model / change parameters (if applicable)</p>
+          <p style="text-align:center;">File inputs (if applicable)</p>
+          <div class="inputs">
+            <div id="file"></div>
+          </div>
+        </div>
+
+
+        <!-- Right section -->
+        <div class="right-content" id="right_section">
+        <!-- GIF? -->
+        <!-- UNIFIED RENDERER TO SYNC WITH D3 ANIMATION? -->
+          <video width="100%" controls>
+            <source src="../static/data/mosaic_sample.mp4" type="video/mp4">
+            <script>document.querySelector('video').playbackRate = 2.0</script> <!--Adjust playback speed using this JS snippet  -->
+            Your browser does not support the video tag.
+          </video>
+          <div class ="button-container">
+            <button>View 1</button>
+            <button>View 2</button>
+            <button>View 3</button>
+            <button>View 4</button>
+            <button>View 5</button>
+            <button>View 6</button>
+            <button>View 7</button>
+            <button>View 8</button>
+          </div>
+        </div>
+      </div>
+        
+      </div>
+ </body>
+</html>
