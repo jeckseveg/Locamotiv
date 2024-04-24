@@ -19,16 +19,3 @@ function d3PieChart(){
     .attr("height", height) // Set the height to match the SVG
     .attr("fill", "grey")   // Set the fill color to grey
 }
-console.log(document.querySelector("h1"));
-
-// find the button
-const button = document.getElementById("button");
-
-// Function to be triggered on button click
-function clickTest() {
-  console.log("Button clicked!");
-  // Your D3 code to manipulate the element or data here (optional)
-}
-console.log(button)
-button.addEventListener("click", clickTest);
-

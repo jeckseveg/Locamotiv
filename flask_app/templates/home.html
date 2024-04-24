@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+
  <head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -14,53 +16,435 @@
 
  <!-- INFO AND ABOUT SECTIONS -->
  <body>
-       <div class="about">
-         <h1 style="text-align:center;">VizML Final Project</h1>
-         <h4>The code can be found on Github <a href="https://github.com/">here</a></h4>
-       </div>
+    <div class="about">
+      <h1 style="text-align:center;">VizML Final Project</h1>
+      <h4>The code can be found on Github <a href="https://github.com/">here</a></h4>
+    </div>
+    
+      <!-- load javascript here -->
+    <script src="static/libs/visuals.js"></script>
+    <script>
+    // get data from flask
+    function getData() {
+      fetch("/get_data")
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.message + ", " + data.name);
+        });
+    }
+    getData();
+    </script>
+    <!-- MAIN BODY OF WEB APP -->
+    <div class="app-container" id="app_container">
       
-       <!-- load javascript here -->
-      <script src="static/libs/visuals.js"></script>
+      
+      <!-- Left section -->
+      <div class="left-content" id="left_section">
+        <!-- <img id="topdown-image" src="{{ url_for('static', filename='images/topdown.jpeg') }}"> -->
+        <div id="topdown"></div>
+        <p style="text-align:center;">Select location | Playback speed adjustment | Choose model / change parameters (if applicable)</p>
+        <form id="localization-time-inputs">
+          <!-- start time -->
+          Start Time: 
+          <input type="number" id="start-minutes-input" min="0" max="59" step="1" value="00">
+          <label for="start-minutes-input">minutes:</label>
+          <input type="number" id="start-seconds-input" min="0" max="59" step="1" value="00">
+          <label for="start-seconds-input">seconds:</label>
+          <br>
 
-      <!-- MAIN BODY OF WEB APP -->
-      <div class="app-container" id="app_container">
+          <!-- duration -->
+          Duration:
+          <input type="number" id="duration-minutes-input" min="0" max="59" step="1" value="00">
+          <label for="duration-minutes-input">minutes:</label>
+          <input type="number" id="duration-seconds-input" min="0" max="59" step="1" value="00">
+          <label for="duration-seconds-input">seconds:</label>
+          <br>
+          <button id="run-localization">Localize Detections</button><!-- onclick="run_localization()">Localize detections</button> -->
+        </form>
         
-        
-        <!-- Left section -->
-        <div class="left-content" id="left_section">
-          <h2 style="text-align:center;">User Controls</h2>
-          <p style="text-align:center;">Select location</p>
-          <p style="text-align:center;">Playback speed adjustment</p>
-          <p style="text-align:center;">Choose model / change parameters (if applicable)</p>
-          <p style="text-align:center;">File inputs (if applicable)</p>
-          <div class="inputs">
-            <div id="file"></div>
+        <script>
+          d3.select("div#topdown")
+              .append("div")
+              // Container class to make it responsive.
+              .classed("svg-container", true) 
+              .append("svg")
+              // Responsive SVG needs these 2 attributes and no width and height attr.
+              .attr("preserveAspectRatio", "xMinYMin meet")
+              .attr("viewBox", "0 0 600 400")
+              // Class to make it responsive.
+              .classed("svg-content-responsive", true)
+              // Fill with a rectangle for visualization.
+              .append("image")
+              .attr("xlink:href", "../static/images/topdown.jpeg")
+              .attr("width","100%")
+              .attr("height","100%")
+
+      </script>
+        <script>
+          const form = document.getElementById("localization-time-inputs");
+
+          form.addEventListener("submit", function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          // get location and active sensor info
+          var activatedValues = Array.from(buttons).map(button => button.getAttribute("activated"));
+
+
+          // get the start time and duration
+          var startMinutes = parseInt(document.getElementById("start-minutes-input").value);
+          var startSeconds = parseInt(document.getElementById("start-seconds-input").value);
+          var durationMinutes = parseInt(document.getElementById("duration-minutes-input").value);
+          var durationSeconds = parseInt(document.getElementById("duration-seconds-input").value);
+          console.log(startMinutes)
+
+          // merge all values into a json string file
+          var json_payload = JSON.stringify({
+            start_minutes: startMinutes,
+            start_seconds: startSeconds,
+            duration_minutes: durationMinutes,
+            duration_seconds: durationSeconds,
+            activated_cameras: activatedValues,
+            location: "chase_1"
+         });
+
+         // Submit the form data to Flask (assuming a POST route) (OLD)
+         console.log(json_payload)
+          $.post( "/run_localization", {
+              payload: json_payload
+          });
+
+
+        async function sendAndReceiveData() { // WORKS REALLY GOOD
+          try {
+            const data = json_payload; // JSON data object
+
+            const response = await fetch("/send_data", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json" // Indicate JSON data
+              },
+              body: data
+              //body: JSON.stringify(data) // Stringify data as JSON
+            });
+            
+
+            if (!response.ok) {
+              throw new Error(`Error sending data: ${response.status}`);
+            }
+
+            const receivedData = await response.json()
+            console.log("Data from Flask:", receivedData);
+           return receivedData;
+            
+          } catch (error) {
+            console.error("Error:", error);
+          }
+        }
+        async function yourMainFunction() {
+          var graph_data = await sendAndReceiveData()
+          console.log(graph_data.nodes[0].position)
+          console.log(Object.keys(graph_data.nodes).map((key) => [key, graph_data[key]]))
+          const xScale = d3.scaleLinear()
+            .domain([0, d3.max(graph_data.nodes, d => d.position[0])])  // Use x-position max
+            .range([0, width]);
+
+          return graph_data
+         // sendAndReceiveData(function(graph_data) {
+            //console.log("Graph data received:", graph_data);
+            // Use the graph_data here for further processing
+        //});
+}
+      
+      var graph_data = yourMainFunction();
+      //const graph_data = sendAndReceiveData();
+      
+
+
+        // .then(graph_data =>{
+        //    console.log(graph_data)
+        // });
+      
+      //console.log(graph_data)
+      // console.log(graph_data.nodes)
+
+      // const yScale = d3.scaleLinear()
+      //   .domain([0, d3.max(graph_data.nodes, d => d.position[1])])  // Use y-position max
+      //   .range([height, 0]); // Invert y-axis for D3 convention
+
+      //   svg.selectAll("circle")
+      //     .data(graph_data.nodes.slice(1)) // Skip the first node (type)
+      //     .enter()
+      //     .append("circle")
+      //       .attr("cx", d => xScale(d.position[0]))  // Use x-position
+      //       .attr("cy", d => yScale(d.position[1]))  // Use y-position
+      //       .attr("r", 5) // Circle radius
+      //       .style("fill", d => d.color || "black"); // Color based on node data
+
+         });
+        </script>
+        <br>
+  
+        <div class='row'>
+          <div class='column'>
+            <div class='blue-column'>
+              Some Text in Column One
+            </div>
+          </div>
+          <div class='column'>
+            <div class='green-column'>
+              Some Text in Column Two
+            </div>
+          </div>
+        </div>
+        <div class="inputs">
+          <div id="file"></div>
+        </div>
+      </div>
+
+
+      <!-- Right section -->
+      <div class="right-content" id="right_section">
+        <!-- Dynamic Video Section -->
+        <div class="video box" style="padding-bottom: 20px;">
+          <div class='row'>
+            <div class='column'>
+              <video id="video_1" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_1/video/left/left_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_1/video/left/left_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class='column'>
+              <video id="video_2" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_1/video/right/right_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_1/video/right/right_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class='column'>
+              <video id="video_3" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_2/video/left/left_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_2/video/left/left_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class='column'>
+              <video id="video_4" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_2/video/right/right_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_2/video/right/right_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+          <div class='row'>
+            <div class='column'>
+              <video id="video_5" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_3/video/left/left_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_3/video/left/left_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class='column'>
+              <video id="video_6" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_3/video/right/right_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_3/video/right/right_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class='column'>
+              <video id="video_7" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_4/video/left/left_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_4/video/left/left_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <div class='column'>
+              <video id="video_8" width="100%" preload="auto" playsinline>
+                <!-- <source src="../static/data/chase_1/sensor_4/video/right/right_half.mp4" type="video/mp4"> -->
+                <source src="../static/data/chase_1/sensor_4/video/right/right_quarter.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
           </div>
         </div>
 
-
-        <!-- Right section -->
-        <div class="right-content" id="right_section">
-        <!-- GIF? -->
-        <!-- UNIFIED RENDERER TO SYNC WITH D3 ANIMATION? -->
-          <video width="100%" controls>
-            <source src="../static/data/mosaic_sample.mp4" type="video/mp4">
-            <script>document.querySelector('video').playbackRate = 2.0</script> <!--Adjust playback speed using this JS snippet  -->
-            Your browser does not support the video tag.
-          </video>
-          <div class ="button-container">
-            <button>View 1</button>
-            <button>View 2</button>
-            <button>View 3</button>
-            <button>View 4</button>
-            <button>View 5</button>
-            <button>View 6</button>
-            <button>View 7</button>
-            <button>View 8</button>
+        
+        <!-- progress bar / play pause button-->
+        <div id="playback">
+          <div id="button-wrapper">
+            <button id="play-pause"><img id="play-pause-image" src="{{ url_for('static', filename='images/play_button.png') }}"></button>
           </div>
+          <div id="scrubber">
+            <div id="progress"></div>
+          </div>
+          <div id="time-display"></div>
+        </div>
+
+        <!-- play/pause + scrubbing + video time-->
+        <script type="text/javascript">
+          //scrubbing
+          $(document).ready(function () {
+          var videos = $("video"); 
+          var $scrubber = $(scrubber);
+          var $progress = $(progress);
+          
+          for (i = 0; i<videos.length; i++){
+            videos[i].addEventListener("timeupdate", videoTimeUpdateHandler);
+          }
+            
+          $scrubber.bind("mousedown", scrubberMouseDownHandler);
+          
+          function videoTimeUpdateHandler(e) { 
+
+              var video = videos[0]; 
+              var percent = video.currentTime / video.duration;
+              updateProgressWidth(percent);
+              
+          }
+          
+          function scrubberMouseDownHandler(e) { 
+              var $this = $(this);
+              var x = e.pageX - $this.offset().left;
+              var percent = x / $this.width();
+              updateProgressWidth(percent);
+              updateVideoTime(percent);
+          }
+          
+          function updateProgressWidth(percent) { 
+              $progress.width((percent * 100) + "%");
+          }
+          
+          function updateVideoTime(percent) {
+            // apply this one to all
+            for (i = 0; i<videos.length; i++){
+              videos[i].currentTime = percent * videos[i].duration;
+            }
+          }
+      });
+
+        //   $(document).ready(function () {
+        //   const masterVideo = $("video")[0]; // Select the first video as the master
+        //   const videos = $("video"); 
+        //   const $scrubber = $(scrubber);
+        //   const $progress = $(progress);
+
+        //   for (let i = 0; i < videos.length; i++) {
+        //     videos[i].addEventListener("timeupdate", () => updateProgressWidth(masterVideo.currentTime / masterVideo.duration));
+        //   }
+
+        //   $scrubber.bind("mousedown", function(e) { 
+        //     const $this = $(this);
+        //     const x = e.pageX - $this.offset().left;
+        //     const percent = x / $this.width();
+        //     updateProgressWidth(percent);
+        //     updateVideoTime(percent);
+        //   });
+
+        //   function updateProgressWidth(percent) { 
+        //     $progress.width((percent * 100) + "%");
+        //   }
+
+        //   function updateVideoTime(percent) {
+        //     masterVideo.currentTime = percent * masterVideo.duration;
+        //     for (let i = 1; i < videos.length; i++) { // Update all other videos except the master
+        //       videos[i].currentTime = masterVideo.currentTime;
+        //     }
+        //   }
+        // });
+
+        // display video time //
+        var video_1 = $("video")[0]
+        var time_display = document.getElementById("time-display");
+        
+        function updateTimeDisplay() {
+          const currentTime = video_1.currentTime;
+          const totalDuration = video_1.duration;
+          const formattedTime = formatTime(currentTime, totalDuration);  // Implement formatTime function
+          time_display.textContent = formattedTime;
+        }
+
+        function formatTime(currentTime, totalDuration) {
+          // Convert seconds to integer values for minutes and seconds
+          const currentMinutes = Math.floor(currentTime / 60);
+          const currentSeconds = Math.floor(currentTime % 60);
+
+          // Convert seconds to integer values for total minutes and seconds
+          const totalMinutes = Math.floor(totalDuration / 60);
+          const totalSeconds = Math.floor(totalDuration % 60);
+
+          // Format minutes and seconds with zero-padding using String.padStart()
+          const formattedCurrentMinutes = String(currentMinutes).padStart(2, "0");
+          const formattedCurrentSeconds = String(currentSeconds).padStart(2, "0");
+          const formattedTotalMinutes = String(totalMinutes).padStart(2, "0");
+          const formattedTotalSeconds = String(totalSeconds).padStart(2, "0");
+
+          // Return the formatted time string
+          return `${formattedCurrentMinutes}:${formattedCurrentSeconds} / ${formattedTotalMinutes}:${formattedTotalSeconds}`;
+        }
+
+        video_1.addEventListener("timeupdate", updateTimeDisplay);
+
+        // play/pause functionality
+        var videos = $("video");
+        var playButton = document.getElementById("play-pause");
+        var playImage = document.getElementById("play-pause-image");
+        var playIconPath = "{{ url_for('static', filename='images/play_button.png') }}";  
+        var pauseIconPath = "{{ url_for('static', filename='images/pause_button.png') }}"; 
+        let isPlaying = false;
+                
+        playButton.addEventListener("click", function() {
+          if (isPlaying) {
+            for (i = 0; i<videos.length; i++){
+                videos[i].pause();
+              }
+            playImage.src = playIconPath;
+          } else {
+            for (i = 0; i<videos.length; i++){
+                videos[i].play();
+              }
+            playImage.src = pauseIconPath;
+          }
+          isPlaying = !isPlaying;
+        });
+      </script>
+        <!-- camera selector -->
+        <div class ="button-container">
+          <button activated="True">View 1</button>
+          <button activated="True">View 2</button>
+          <button activated="True">View 3</button>
+          <button activated="True">View 4</button>
+          <button activated="True">View 5</button>
+          <button activated="True">View 6</button>
+          <button activated="True">View 7</button>
+          <button activated="True">View 8</button>
+          <script>
+            // select all buttons and add event listener for each
+            const buttons = document.querySelectorAll('.button-container button');
+            for(var i = 0; i < buttons.length; i++) {
+              buttons[i].addEventListener("click", bindClick(i));
+            }
+            // change button color on click
+            function bindClick(i) {
+              return function() {
+                // turn on/off
+
+                if (buttons[i].style.backgroundColor!='rgb(85, 51, 51)'){
+                buttons[i].style.backgroundColor = "#533"
+                buttons[i].setAttribute('activated','False')
+                videos[i].style.opacity = 0.5
+                }
+                // turn off/on
+                else{
+                buttons[i].style.backgroundColor = "#333"
+                buttons[i].setAttribute('activated','True')
+                videos[i].style.opacity = 1.0
+                }
+              };
+            }
+          </script>
         </div>
       </div>
-        
-      </div>
- </body>
+    </div> 
+  </div>
+</body>
 </html>

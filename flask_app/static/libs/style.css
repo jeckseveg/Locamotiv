@@ -1,57 +1,157 @@
 body {
-    margin: 0; /* Remove default body margin */
-    font-family: sans-serif;
-  }
-  
-  .container {
-    display: flex; /* Use flexbox for layout */
+  margin: 0; /* Remove default body margin */
+  font-family: sans-serif;
+}
 
-    height: 100vh; /* Set container height to 100vh (full viewport height) */
-  }
-  
-  .right-content {
-    flex: 3;
-    padding: 20px;
-    align-items: center; /* Center video vertically */
-    /* order: 2; */
-  }
-  
-  .left-content {
-    flex: 2; /* Text content takes up half the space */
-    padding: 20px; /* Add some padding to the text content */
-    align-items: center;
-  }
-  
-  video {
-    max-width: 100%; /* Adjust max-width as needed for responsiveness */
-    height: auto; /* Maintain aspect ratio */
-  }
 
-  .container {
-    align-items: flex-start;
-  }
 
-  .button-container {
-    /*display: flex; /* Makes buttons appear horizontally */
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    justify-items: center;  /*Centers buttons horizontally within the container */
-    margin-top: 20px; /* Adds space above the buttons */
-  }
-  
-  .button-container button {
-    margin: 5px; /* Adds space between buttons */
-    padding: 10px 20px; /* Adds padding to buttons */
-    background-color: #333; /* Sets button background color */
-    color: #fff; /* Sets button text color */
-    border: none; /* Removes default button border */
-    border-radius: 5px; 
-  }
+.container {
+  display: flex; /* Use flexbox for layout */
 
-  .app-container{
-    display: flex;
-    align-items: center;
-    justify-items: center;
-  }
+  height: 100vh; /* Set container height to 100vh (full viewport height) */
+}
+
+.right-content {
+  flex: 4;
+  padding: 20px;
+  align-items: center; /* Center video vertically */
+  /* order: 2; */
+}
+
+.left-content {
+  /* flex: 2; Text content takes up half the space */
+  flex: 2;
+  padding: 20px; /* Add some padding to the text content */
+  align-items: center;
+}
+
+video {
+  max-width: 100%; /* Adjust max-width as needed for responsiveness */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.container {
+  align-items: flex-start;
+}
+
+.button-container {
+  /*display: flex; /* Makes buttons appear horizontally */
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  justify-items: center;  /*Centers buttons horizontally within the container */
+  margin-top: 20px; /* Adds space above the buttons */
+}
+
+.button-container button {
+  margin: 5px; /* Adds space between buttons */
+  padding: 10px 20px; /* Adds padding to buttons */
+  background-color: #333; /* Sets button background color */
+  color: #fff; /* Sets button text color */
+  border: none; /* Removes default button border */
+  border-radius: 5px; 
+  cursor: pointer;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* .button-container button:active,
+.active {
+  background-color: olive;
+  box-shadow: none;
+} */
+
+.app-container{
+  display: flex;
+  align-items: center;
+  justify-items: center;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+}
+
+#scrubber {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background-color: lightgrey;
+  flex: 1;
+}
+
+#progress {
+  width: 0;
+  height: 20px;
+  background-color: darkgrey;
+}
+
+#play-pause{
+  background-color: pink;
+}
+
+#button-wrapper {
+  /* Set a maximum width for the button-wrapper if needed */
+  max-height: 40px; /* Adjust as needed */
+  overflow: contain;  /* This will hide any overflowing content */
+  margin-right: 10px;
+}
+
+#play-pause-image {
+  /* Set image styles */
+  max-width: 100%;  /* Scale image to fit button */
+  max-height: 100%; /* Maintain aspect ratio */
+}
+#topdown-image {
+  /* Set image styles */
+  max-width: 100%;  /* Scale image to fit button */
+  max-height: 100%; /* Maintain aspect ratio */
+}
+
+#play-pause {
+  /* Set button styles (optional) */
+  padding: 0;  /* Remove default padding */
+  border: none;  /* Remove default border */
+  background-color: transparent;  /* Make background transparent */
+  cursor: pointer;  /* Indicate clickable element */
+}
+
+#playback {
+  display: flex; /* Make #playback a flex container */
+  align-items: center; /* Vertically center child elements */
+}
+
+#time-display {
+  /* Set styles for the time display div */
+  margin-left:10px;
+  width: 50px;  /* Adjust width as needed */
+  text-align: right;  /* Align text to the right */
+  font-size: 12px;  /* Adjust font size as needed */
+  color: #333;  /* Set text color */
+  overflow:contain;
+  flex:0.065;
+}
+
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%; /* aspect ratio */
+  vertical-align: top;
+  overflow: hidden;
+}
+.svg-content-responsive {
+  display: inline-block;
+  position: absolute;
+  top: 10px;
+  left: 0;
+}

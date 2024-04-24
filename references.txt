@@ -1,0 +1,3 @@
+https://github.com/samihormi/Multi-Camera-Person-Tracking-and-Re-Identification
+https://github.com/dbloisi/homography-computation/blob/master/homography-computation.py - made calculating homographies easy and visually confirming homographies were good
+https://github.com/vita-epfl/monoloco - monocular detector for bounding boxes / ground point
