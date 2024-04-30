@@ -22,7 +22,7 @@
     </div>
     
       <!-- load javascript here -->
-    <script src="static/libs/visuals.js"></script>
+    <script src="static/libs/scripts.js"></script>
     <script>
     // get data from flask
     function getData() {
@@ -62,128 +62,85 @@
           <button id="run-localization">Localize Detections</button><!-- onclick="run_localization()">Localize detections</button> -->
         </form>
         
-        <script>
-          d3.select("div#topdown")
+        <!-- Build the svg -->
+        <script> 
+          const colors = ['red','#00CC66','#3399FF','orange','#CC33CC','yellow','white','#ff9999']
+          const cameras = [0,1,2,3,4,5,6,7]
+          var colorFunc = d3.scaleOrdinal()
+                        .domain(cameras)
+                        .range(colors);
+          const svg = d3.select("div#topdown")
               .append("div")
               // Container class to make it responsive.
               .classed("svg-container", true) 
               .append("svg")
+              .attr("id", "svg-id") // svg id
               // Responsive SVG needs these 2 attributes and no width and height attr.
               .attr("preserveAspectRatio", "xMinYMin meet")
-              .attr("viewBox", "0 0 600 400")
-              // Class to make it responsive.
-              .classed("svg-content-responsive", true)
-              // Fill with a rectangle for visualization.
-              .append("image")
-              .attr("xlink:href", "../static/images/topdown.jpeg")
+              .attr("viewBox", "0 0 570 478")
+              .classed("svg-content-responsive", true) // Class to make it responsive.
+         
+              svg.append("image")
+              .attr("xlink:href", "../static/data/chase_1/homography_targets/chase_1.png")
               .attr("width","100%")
               .attr("height","100%")
+              .attr("id","topdown-image-id");  
+              
+          const g = svg.append("g")
+               .attr("transform",
+               "translate(" + 0 + "," + 0 + ")");
+          
+          // legend
+          spaceBetween = 16;
+          xStart = 20;
+          yStart = 20;
+          squareSize = 10;
 
+          svg.append("rect")
+            .attr("x",xStart-10)
+            .attr("y",yStart-10)
+            .attr("height",140)
+            .attr("width",50)
+            .attr("opacity",0.9)
+            .attr("fill","#383838")
+
+          
+
+          svg.selectAll("legend_markers")
+            .data(cameras)
+            .enter()
+            .append("rect")
+            .attr("x", xStart)
+            .attr("y", function(d,i){ return yStart + i*spaceBetween}) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("width", squareSize)
+            .attr("height", squareSize)
+            .style("fill", function(d){ return colorFunc(d)})
+
+          svg.selectAll("mylabels")
+            .data(cameras)
+            .enter()
+            .append("text")
+              .attr("x", xStart + 20)
+              .attr("y", function(d,i){ return yStart+ 6 + i*(spaceBetween)}) // 100 is where the first dot appears. 25 is the distance between dots
+              .style("fill", function(d){ return colorFunc(d)})
+              .text(function(d){ return d+1})
+              .attr("text-anchor", "left")
+              .style("alignment-baseline", "middle")
+              .style("font-size", "12px")
+
+
+          // form submission functionality
+          const form = document.getElementById("localization-time-inputs");
+          form.addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent default form submission       
+            console.log("update the settings here!")
+          })     
+               
       </script>
         <script>
-          const form = document.getElementById("localization-time-inputs");
-
-          form.addEventListener("submit", function(event) {
-          event.preventDefault(); // Prevent default form submission
-
-          // get location and active sensor info
-          var activatedValues = Array.from(buttons).map(button => button.getAttribute("activated"));
-
-
-          // get the start time and duration
-          var startMinutes = parseInt(document.getElementById("start-minutes-input").value);
-          var startSeconds = parseInt(document.getElementById("start-seconds-input").value);
-          var durationMinutes = parseInt(document.getElementById("duration-minutes-input").value);
-          var durationSeconds = parseInt(document.getElementById("duration-seconds-input").value);
-          console.log(startMinutes)
-
-          // merge all values into a json string file
-          var json_payload = JSON.stringify({
-            start_minutes: startMinutes,
-            start_seconds: startSeconds,
-            duration_minutes: durationMinutes,
-            duration_seconds: durationSeconds,
-            activated_cameras: activatedValues,
-            location: "chase_1"
-         });
-
-         // Submit the form data to Flask (assuming a POST route) (OLD)
-         console.log(json_payload)
-          $.post( "/run_localization", {
-              payload: json_payload
-          });
-
-
-        async function sendAndReceiveData() { // WORKS REALLY GOOD
-          try {
-            const data = json_payload; // JSON data object
-
-            const response = await fetch("/send_data", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json" // Indicate JSON data
-              },
-              body: data
-              //body: JSON.stringify(data) // Stringify data as JSON
-            });
-            
-
-            if (!response.ok) {
-              throw new Error(`Error sending data: ${response.status}`);
-            }
-
-            const receivedData = await response.json()
-            console.log("Data from Flask:", receivedData);
-           return receivedData;
-            
-          } catch (error) {
-            console.error("Error:", error);
-          }
-        }
-        async function yourMainFunction() {
-          var graph_data = await sendAndReceiveData()
-          console.log(graph_data.nodes[0].position)
-          console.log(Object.keys(graph_data.nodes).map((key) => [key, graph_data[key]]))
-          const xScale = d3.scaleLinear()
-            .domain([0, d3.max(graph_data.nodes, d => d.position[0])])  // Use x-position max
-            .range([0, width]);
-
-          return graph_data
-         // sendAndReceiveData(function(graph_data) {
-            //console.log("Graph data received:", graph_data);
-            // Use the graph_data here for further processing
-        //});
-}
-      
-      var graph_data = yourMainFunction();
-      //const graph_data = sendAndReceiveData();
-      
-
-
-        // .then(graph_data =>{
-        //    console.log(graph_data)
-        // });
-      
-      //console.log(graph_data)
-      // console.log(graph_data.nodes)
-
-      // const yScale = d3.scaleLinear()
-      //   .domain([0, d3.max(graph_data.nodes, d => d.position[1])])  // Use y-position max
-      //   .range([height, 0]); // Invert y-axis for D3 convention
-
-      //   svg.selectAll("circle")
-      //     .data(graph_data.nodes.slice(1)) // Skip the first node (type)
-      //     .enter()
-      //     .append("circle")
-      //       .attr("cx", d => xScale(d.position[0]))  // Use x-position
-      //       .attr("cy", d => yScale(d.position[1]))  // Use y-position
-      //       .attr("r", 5) // Circle radius
-      //       .style("fill", d => d.color || "black"); // Color based on node data
-
-         });
+          
         </script>
         <br>
-  
         <div class='row'>
           <div class='column'>
             <div class='blue-column'>
@@ -206,6 +163,7 @@
       <div class="right-content" id="right_section">
         <!-- Dynamic Video Section -->
         <div class="video box" style="padding-bottom: 20px;">
+          <canvas id="videoCanvas"></canvas>
           <div class='row'>
             <div class='column'>
               <video id="video_1" width="100%" preload="auto" playsinline>
@@ -268,6 +226,31 @@
           </div>
         </div>
 
+        <script type="text/javascript">
+          function drawImge(){
+              var video = document.querySelector("#webCamera");
+              var canvas = document.querySelector("#videoCanvas");
+              var ctx = canvas.getContext('2d');
+
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+
+
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+              var faceArea = 300;
+              var pX=canvas.width/2 - faceArea/2;
+              var pY=canvas.height/2 - faceArea/2;
+
+              ctx.rect(pX,pY,faceArea,faceArea);
+              ctx.lineWidth = "6";
+              ctx.strokeStyle = "red";    
+              ctx.stroke();
+
+
+              setTimeout(drawImge , 100);
+          }
+        </script>
         
         <!-- progress bar / play pause button-->
         <div id="playback">
@@ -282,75 +265,44 @@
 
         <!-- play/pause + scrubbing + video time-->
         <script type="text/javascript">
+          const fps = 14.403
           //scrubbing
           $(document).ready(function () {
-          var videos = $("video"); 
-          var $scrubber = $(scrubber);
-          var $progress = $(progress);
-          
-          for (i = 0; i<videos.length; i++){
-            videos[i].addEventListener("timeupdate", videoTimeUpdateHandler);
-          }
+            var videos = $("video"); 
+            var $scrubber = $(scrubber);
+            var $progress = $(progress);
             
-          $scrubber.bind("mousedown", scrubberMouseDownHandler);
-          
-          function videoTimeUpdateHandler(e) { 
-
-              var video = videos[0]; 
-              var percent = video.currentTime / video.duration;
-              updateProgressWidth(percent);
-              
-          }
-          
-          function scrubberMouseDownHandler(e) { 
-              var $this = $(this);
-              var x = e.pageX - $this.offset().left;
-              var percent = x / $this.width();
-              updateProgressWidth(percent);
-              updateVideoTime(percent);
-          }
-          
-          function updateProgressWidth(percent) { 
-              $progress.width((percent * 100) + "%");
-          }
-          
-          function updateVideoTime(percent) {
-            // apply this one to all
             for (i = 0; i<videos.length; i++){
-              videos[i].currentTime = percent * videos[i].duration;
+              videos[i].addEventListener("timeupdate", videoTimeUpdateHandler);
             }
-          }
-      });
-
-        //   $(document).ready(function () {
-        //   const masterVideo = $("video")[0]; // Select the first video as the master
-        //   const videos = $("video"); 
-        //   const $scrubber = $(scrubber);
-        //   const $progress = $(progress);
-
-        //   for (let i = 0; i < videos.length; i++) {
-        //     videos[i].addEventListener("timeupdate", () => updateProgressWidth(masterVideo.currentTime / masterVideo.duration));
-        //   }
-
-        //   $scrubber.bind("mousedown", function(e) { 
-        //     const $this = $(this);
-        //     const x = e.pageX - $this.offset().left;
-        //     const percent = x / $this.width();
-        //     updateProgressWidth(percent);
-        //     updateVideoTime(percent);
-        //   });
-
-        //   function updateProgressWidth(percent) { 
-        //     $progress.width((percent * 100) + "%");
-        //   }
-
-        //   function updateVideoTime(percent) {
-        //     masterVideo.currentTime = percent * masterVideo.duration;
-        //     for (let i = 1; i < videos.length; i++) { // Update all other videos except the master
-        //       videos[i].currentTime = masterVideo.currentTime;
-        //     }
-        //   }
-        // });
+              
+            $scrubber.bind("mousedown", scrubberMouseDownHandler);
+            
+            function videoTimeUpdateHandler(e) { 
+                var video = videos[0]; 
+                var percent = video.currentTime / video.duration;
+                updateProgressWidth(percent);     
+            }
+            
+            function scrubberMouseDownHandler(e) { 
+                var $this = $(this);
+                var x = e.pageX - $this.offset().left;
+                var percent = x / $this.width();
+                updateProgressWidth(percent);
+                updateVideoTime(percent);
+            }
+            
+            function updateProgressWidth(percent) { 
+                $progress.width((percent * 100) + "%");
+            }
+            
+            function updateVideoTime(percent) {
+              // apply this one to all
+              for (i = 0; i<videos.length; i++){
+                videos[i].currentTime = percent * videos[i].duration;
+              }
+            }
+          });
 
         // display video time //
         var video_1 = $("video")[0]
@@ -382,6 +334,107 @@
           return `${formattedCurrentMinutes}:${formattedCurrentSeconds} / ${formattedTotalMinutes}:${formattedTotalSeconds}`;
         }
 
+        // create payload for flask
+        // get location and active sensor info
+        var new_buttons = document.querySelectorAll('.button-container button');
+        var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
+
+        // function to run every frame
+        async function frameUpdateEngine(timestamp) {
+          currentFrame = Math.floor(fps*video_1.currentTime) // store current frame for operations
+          
+          // create payload for flask
+          var new_buttons = document.querySelectorAll('.button-container button');
+          var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
+          var json_payload = JSON.stringify({
+            frame_number: currentFrame,
+            activated_cameras: activatedValues,
+            location: "chase_1"
+          });
+
+          // print frame number
+          console.log(`Current Frame: ${currentFrame}`);
+          console.log(json_payload)
+
+          // send payload
+          var graph_data = await sendAndReceiveData(json_payload)
+          console.log("graph data")
+          console.log(graph_data)
+          
+          updateSVG(graph_data) // update the svg
+
+          // cleanse the video frame callback
+          video_1.cancelVideoFrameCallback(frameUpdateEngine);
+          video_1.requestVideoFrameCallback(frameUpdateEngine);
+        }
+
+        async function updateSVG(graph_data) {
+          const startTime = performance.now();
+          console.log(svg)
+          console.log("^ svg")
+          var nodeArray = Array.from(Object.values(graph_data.nodes));
+          var nodeObject = graph_data.nodes
+          var edgeArray = graph_data.edges
+          var x_adjust = 137
+          var y_adjust = 92          
+
+          // clear svg
+          svg.selectAll("circle").remove();
+          svg.selectAll("path").remove();
+
+          // scatter points for nodes
+          g.selectAll("dot")
+            .data(nodeArray)
+            .enter()
+            .append("circle")
+              .attr("cx", function (d) { return d.position[0]+x_adjust; } )
+              .attr("cy", function (d) {return d.position[1]+y_adjust;} )
+              .attr("r", 4)
+              .attr("fill",function (d) { return d.color; } )
+              .style('opacity', 1);
+
+          // paths for edges
+          var link = d3.linkHorizontal()
+                .source(function(d) {
+                  //console.log("line");
+                  //console.log(nodeObject[d[0]]['position']);
+                  //console.log([nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust])
+                    return [nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust];
+                })
+                .target(function(d) {
+                  //console.log(d)
+                  //console.log([nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust])
+                    return [nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust];
+                });
+          
+          d3.select("#svg-id") 
+            .selectAll("path")
+            .data(edgeArray)
+            .join("path")
+            .attr("stroke-width", 5)
+            .attr("d", link)
+            .classed("link", true);
+             // THIS DOES NOTHING BUT WE SHOUD FIX IT
+                // svg
+          //   .append('path')
+          //   .attr('d', link)
+          //   .attr('stroke', 'black')
+          //   .attr('fill', 'none')
+          
+          const endTime = performance.now();
+          console.log("Execution time:", endTime - startTime, "milliseconds");
+        };
+
+        var added = false
+        // event listeners for framewise activity
+        video_1.addEventListener('play', () => {
+          if (!added){
+            video_1.requestVideoFrameCallback(frameUpdateEngine);
+            added = true
+          } 
+        });
+
+        
         video_1.addEventListener("timeupdate", updateTimeDisplay);
 
         // play/pause functionality
@@ -397,13 +450,16 @@
             for (i = 0; i<videos.length; i++){
                 videos[i].pause();
               }
+            video_1.cancelVideoFrameCallback(frameUpdateEngine);
             playImage.src = playIconPath;
           } else {
             for (i = 0; i<videos.length; i++){
                 videos[i].play();
+                
               }
-            playImage.src = pauseIconPath;
+            playImage.src = pauseIconPath; // update play / pause button
           }
+          frameUpdateEngine(0);
           isPlaying = !isPlaying;
         });
       </script>
@@ -439,6 +495,8 @@
                 buttons[i].setAttribute('activated','True')
                 videos[i].style.opacity = 1.0
                 }
+                frameUpdateEngine(0);
+                console.log('hoorah')
               };
             }
           </script>
