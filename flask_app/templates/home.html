@@ -18,7 +18,8 @@
  <body>
     <div class="about">
       <h1 style="text-align:center;">VizML Final Project</h1>
-      <h4>The code can be found on Github <a href="https://github.com/">here</a></h4>
+      <h4 style="text-align:center;">The code can be found on Github <a href="https://github.com/jeckseveg/interactive_localization">here</a></h4>
+      <h4 style="text-align:center;">The St dataset <a href="https://github.com/jeckseveg/interactive_localization">here</a></h4>
     </div>
     
       <!-- load javascript here -->
@@ -40,28 +41,82 @@
       
       <!-- Left section -->
       <div class="left-content" id="left_section">
-        <!-- <img id="topdown-image" src="{{ url_for('static', filename='images/topdown.jpeg') }}"> -->
         <div id="topdown"></div>
-        <p style="text-align:center;">Select location | Playback speed adjustment | Choose model / change parameters (if applicable)</p>
-        <form id="localization-time-inputs">
-          <!-- start time -->
-          Start Time: 
-          <input type="number" id="start-minutes-input" min="0" max="59" step="1" value="00">
-          <label for="start-minutes-input">minutes:</label>
-          <input type="number" id="start-seconds-input" min="0" max="59" step="1" value="00">
-          <label for="start-seconds-input">seconds:</label>
-          <br>
+        <div class='row'>
+          
+          <div class="column"><button id="toggle-centroids" activated="True">Toggle Centroids</button></div><!-- >Localize detections</button> -->
+          <div class="column"><button id="toggle-ground-points" activated="True" >Toggle Points</button></div>
+          <div class="column"><button id="toggle-boxes" activated="False" >Toggle Boxes</button></div>
+          <div class="column">
+            <div class="slider-container">
+              <label for="opacity-slider">Min Centroid Points</label>
+              <input type="range" id="opacity-slider" min="1" max="8" value="2" class="slider" >
+              <span id="slider-value">2</span>
+            </div>
+          </div>
+        </div>
+        <!-- Button controls -->
+        <script>
+          
+          let centroids_active = true;
+          let ground_points_active = true;
+          let box_toggler_active = false;
+          var slider = document.getElementById("opacity-slider")
+          var valueSpan = document.getElementById("slider-value")
+          
+          // select all buttons and add event listener for each
+          var ground_points_button = $("#toggle-ground-points")[0];
+          ground_points_button.addEventListener("click", toggle_ground_points)
+          var centroid_button = $("#toggle-centroids")[0];
+          centroid_button.addEventListener("click", toggle_centroids)
+          
+          
+          // change button color on click
+          function toggle_ground_points() {
+              // turn on/off
+              var ground_points_button = document.getElementById("toggle-ground-points");
+              console.log(ground_points_button.getAttribute("activated")==="True")
+              if (ground_points_button.getAttribute("activated")==="True"){
+                ground_points_button.style.backgroundColor = "#533"
+                ground_points_button.setAttribute('activated','False')
+                ground_points_active = false
+              }
+              // turn off/on
+              else{
+                ground_points_button.style.backgroundColor = "#333"
+                ground_points_button.setAttribute('activated','True')
+                ground_points_active = true
+              }
+              frameUpdateEngine(0);
+          }
+          function toggle_centroids() {
+              // turn on/off
+              var centroid_button = document.getElementById("toggle-centroids");
+              console.log(centroid_button.getAttribute("activated")==="True")
+              if (centroid_button.getAttribute("activated")==="True"){
+                centroid_button.style.backgroundColor = "#533";
+                centroid_button.setAttribute('activated','False');
+                centroid_button.style.opacity = 1.0;
+                centroids_active = false;
+              }
+              // turn off/on
+              else{
+                centroid_button.style.backgroundColor = "#333";
+                centroid_button.setAttribute('activated','True');
+                centroid_button.style.opacity = 1.0;
+                centroids_active = true;
+              }
+              frameUpdateEngine(0);
+          }
 
-          <!-- duration -->
-          Duration:
-          <input type="number" id="duration-minutes-input" min="0" max="59" step="1" value="00">
-          <label for="duration-minutes-input">minutes:</label>
-          <input type="number" id="duration-seconds-input" min="0" max="59" step="1" value="00">
-          <label for="duration-seconds-input">seconds:</label>
-          <br>
-          <button id="run-localization">Localize Detections</button><!-- onclick="run_localization()">Localize detections</button> -->
-        </form>
-        
+
+          // slider update behavior
+          slider.oninput = function() {
+            valueSpan.textContent = this.value;
+            frameUpdateEngine(0);
+          };
+
+        </script>
         <!-- Build the svg -->
         <script> 
           const colors = ['red','#00CC66','#3399FF','orange','#CC33CC','yellow','white','#ff9999']
@@ -104,8 +159,6 @@
             .attr("opacity",0.9)
             .attr("fill","#383838")
 
-          
-
           svg.selectAll("legend_markers")
             .data(cameras)
             .enter()
@@ -129,33 +182,13 @@
               .style("font-size", "12px")
 
 
-          // form submission functionality
-          const form = document.getElementById("localization-time-inputs");
-          form.addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent default form submission       
-            console.log("update the settings here!")
-          })     
                
       </script>
         <script>
           
         </script>
         <br>
-        <div class='row'>
-          <div class='column'>
-            <div class='blue-column'>
-              Some Text in Column One
-            </div>
-          </div>
-          <div class='column'>
-            <div class='green-column'>
-              Some Text in Column Two
-            </div>
-          </div>
-        </div>
-        <div class="inputs">
-          <div id="file"></div>
-        </div>
+
       </div>
 
 
@@ -163,33 +196,33 @@
       <div class="right-content" id="right_section">
         <!-- Dynamic Video Section -->
         <div class="video box" style="padding-bottom: 20px;">
-          <canvas id="videoCanvas"></canvas>
+          <!-- <canvas id="videoCanvas"></canvas> -->
           <div class='row'>
             <div class='column'>
               <video id="video_1" width="100%" preload="auto" playsinline>
                 <!-- <source src="../static/data/chase_1/sensor_1/video/left/left_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_1/video/left/left_quarter.mp4" type="video/mp4">
+                <source id="source_1" src="../static/data/chase_1/sensor_1/video/left/left_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
             <div class='column'>
               <video id="video_2" width="100%" preload="auto" playsinline>
                 <!-- <source src="../static/data/chase_1/sensor_1/video/right/right_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_1/video/right/right_quarter.mp4" type="video/mp4">
+                <source id="source_2" src="../static/data/chase_1/sensor_1/video/right/right_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
             <div class='column'>
               <video id="video_3" width="100%" preload="auto" playsinline>
                 <!-- <source src="../static/data/chase_1/sensor_2/video/left/left_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_2/video/left/left_quarter.mp4" type="video/mp4">
+                <source id="source_3" src="../static/data/chase_1/sensor_2/video/left/left_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
             <div class='column'>
               <video id="video_4" width="100%" preload="auto" playsinline>
                 <!-- <source src="../static/data/chase_1/sensor_2/video/right/right_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_2/video/right/right_quarter.mp4" type="video/mp4">
+                <source id="source_4" src="../static/data/chase_1/sensor_2/video/right/right_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -197,29 +230,28 @@
           <div class='row'>
             <div class='column'>
               <video id="video_5" width="100%" preload="auto" playsinline>
-                <!-- <source src="../static/data/chase_1/sensor_3/video/left/left_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_3/video/left/left_quarter.mp4" type="video/mp4">
+                <source id="source_5" src="../static/data/chase_1/sensor_3/video/left/left_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
             <div class='column'>
               <video id="video_6" width="100%" preload="auto" playsinline>
                 <!-- <source src="../static/data/chase_1/sensor_3/video/right/right_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_3/video/right/right_quarter.mp4" type="video/mp4">
+                <source id="source_6" src="../static/data/chase_1/sensor_3/video/right/right_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
             <div class='column'>
               <video id="video_7" width="100%" preload="auto" playsinline>
                 <!-- <source src="../static/data/chase_1/sensor_4/video/left/left_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_4/video/left/left_quarter.mp4" type="video/mp4">
+                <source id="source_7" src="../static/data/chase_1/sensor_4/video/left/left_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
             <div class='column'>
               <video id="video_8" width="100%" preload="auto" playsinline>
                 <!-- <source src="../static/data/chase_1/sensor_4/video/right/right_half.mp4" type="video/mp4"> -->
-                <source src="../static/data/chase_1/sensor_4/video/right/right_quarter.mp4" type="video/mp4">
+                <source id="source_8" src="../static/data/chase_1/sensor_4/video/right/right_quarter.mp4" type="video/mp4">
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -227,28 +259,56 @@
         </div>
 
         <script type="text/javascript">
-          function drawImge(){
-              var video = document.querySelector("#webCamera");
-              var canvas = document.querySelector("#videoCanvas");
-              var ctx = canvas.getContext('2d');
+          
+          // Update source URL
+          var box_toggler = document.getElementById("toggle-boxes");
+          box_toggler.addEventListener("click", toggle_boxes);
+          box_toggler_active = false;
+          box_toggler.setAttribute('activated','False');
+          box_toggler.style.backgroundColor = "#533";
+          
+          
+          function reload_videos(box_toggler_active) {
+            for (let i = 1; i <= 8; i++){
+              var video_i = document.getElementById(`video_${i}`);
+              var currentTime = video_i.currentTime;
+              var src_i = document.getElementById(`source_${i}`);
+              var src_path = src_i.src;
+              if(box_toggler_active){ // turn on boxes
+                src_path = src_path.slice(0, src_path.lastIndexOf(".")) + "_boxes_2.mp4";
+              }
+              else{ // turn off boxes
+                src_path = src_path.slice(0,src_path.indexOf("_boxes_2"))+".mp4"; 
+              }
 
-              canvas.width = video.videoWidth;
-              canvas.height = video.videoHeight;
+              src_i.src = src_path;
+              video_i.load();
+              video_i.currentTime = currentTime;
+              };
+              frameUpdateEngine(0)
+            }
+          
 
-
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-              var faceArea = 300;
-              var pX=canvas.width/2 - faceArea/2;
-              var pY=canvas.height/2 - faceArea/2;
-
-              ctx.rect(pX,pY,faceArea,faceArea);
-              ctx.lineWidth = "6";
-              ctx.strokeStyle = "red";    
-              ctx.stroke();
-
-
-              setTimeout(drawImge , 100);
+          function toggle_boxes() {
+            // turn off
+            var box_toggler = document.getElementById("toggle-boxes")
+            console.log(box_toggler.getAttribute("activated")==="True")
+            if (box_toggler.getAttribute("activated")==="True"){
+              box_toggler_active = false;
+              box_toggler.setAttribute('activated','False');
+              box_toggler.style.backgroundColor = "#533";
+              
+              reload_videos(box_toggler_active);
+            }
+            // turn on
+            else{
+              box_toggler_active = true;
+              box_toggler.setAttribute('activated','True');
+              box_toggler.style.backgroundColor = "#333";
+              
+              reload_videos(box_toggler_active);
+            }
+            frameUpdateEngine(0);
           }
         </script>
         
@@ -338,31 +398,32 @@
         // get location and active sensor info
         var new_buttons = document.querySelectorAll('.button-container button');
         var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
-
         // function to run every frame
         async function frameUpdateEngine(timestamp) {
+          var min_points = parseInt(document.getElementById("opacity-slider").value)
           currentFrame = Math.floor(fps*video_1.currentTime) // store current frame for operations
-          
-          // create payload for flask
-          var new_buttons = document.querySelectorAll('.button-container button');
-          var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
-          var json_payload = JSON.stringify({
-            frame_number: currentFrame,
-            activated_cameras: activatedValues,
-            location: "chase_1"
-          });
+          if(currentFrame%2 === 0){
+            // create payload for flask
+            var new_buttons = document.querySelectorAll('.button-container button');
+            var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
+            var json_payload = JSON.stringify({
+              frame_number: currentFrame,
+              activated_cameras: activatedValues,
+              location: "chase_1",
+              min_points: min_points
+            });
 
-          // print frame number
-          console.log(`Current Frame: ${currentFrame}`);
-          console.log(json_payload)
+            // print frame number
+            console.log(`Current Frame: ${currentFrame}`);
+            console.log(json_payload)
 
-          // send payload
-          var graph_data = await sendAndReceiveData(json_payload)
-          console.log("graph data")
-          console.log(graph_data)
-          
-          updateSVG(graph_data) // update the svg
-
+            // send payload
+            var graph_data = await sendAndReceiveData(json_payload)
+            console.log("graph data")
+            console.log(graph_data)
+            
+            updateSVG(graph_data) // update the svg
+          }
           // cleanse the video frame callback
           video_1.cancelVideoFrameCallback(frameUpdateEngine);
           video_1.requestVideoFrameCallback(frameUpdateEngine);
@@ -375,6 +436,7 @@
           var nodeArray = Array.from(Object.values(graph_data.nodes));
           var nodeObject = graph_data.nodes
           var edgeArray = graph_data.edges
+          var centroidArray = graph_data.centroids
           var x_adjust = 137
           var y_adjust = 92          
 
@@ -382,45 +444,56 @@
           svg.selectAll("circle").remove();
           svg.selectAll("path").remove();
 
-          // scatter points for nodes
-          g.selectAll("dot")
-            .data(nodeArray)
-            .enter()
-            .append("circle")
-              .attr("cx", function (d) { return d.position[0]+x_adjust; } )
-              .attr("cy", function (d) {return d.position[1]+y_adjust;} )
-              .attr("r", 4)
-              .attr("fill",function (d) { return d.color; } )
-              .style('opacity', 1);
+          
+          // only if ground points are being displayed
+          if(ground_points_active){
+            // scatter points for ground point nodes
+            g.selectAll("dot")
+              .data(nodeArray)
+              .enter()
+              .append("circle")
+                .attr("cx", function (d) { return d.position[0]+x_adjust; } )
+                .attr("cy", function (d) {return d.position[1]+y_adjust;} )
+                .attr("r", 4)
+                .attr("fill",function (d) { return d.color; } )
+                .style('opacity', 1);
 
-          // paths for edges
-          var link = d3.linkHorizontal()
-                .source(function(d) {
-                  //console.log("line");
-                  //console.log(nodeObject[d[0]]['position']);
-                  //console.log([nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust])
-                    return [nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust];
-                })
-                .target(function(d) {
-                  //console.log(d)
-                  //console.log([nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust])
-                    return [nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust];
-                });
-          
-          d3.select("#svg-id") 
-            .selectAll("path")
-            .data(edgeArray)
-            .join("path")
-            .attr("stroke-width", 5)
-            .attr("d", link)
-            .classed("link", true);
-             // THIS DOES NOTHING BUT WE SHOUD FIX IT
-                // svg
-          //   .append('path')
-          //   .attr('d', link)
-          //   .attr('stroke', 'black')
-          //   .attr('fill', 'none')
-          
+            // paths for edges
+            var link = d3.linkHorizontal()
+                  .source(function(d) {
+                    //console.log("line");
+                    //console.log(nodeObject[d[0]]['position']);
+                    //console.log([nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust])
+                      return [nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust];
+                  })
+                  .target(function(d) {
+                    //console.log(d)
+                    //console.log([nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust])
+                      return [nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust];
+                  });
+            d3.select("#svg-id") 
+              .selectAll("path")
+              .data(edgeArray)
+              .join("path")
+              .attr("stroke-width", 5)
+              .attr("d", link)
+              .classed("link", true);
+          }
+
+          if (centroids_active){
+            // code to draw the centroids here
+            // code to draw the centroids here
+            g.selectAll("centroid")
+              .data(centroidArray)
+              .enter()
+              .append("circle")
+                .attr("cx", function (d) { return d[0]+x_adjust; } )
+                .attr("cy", function (d) {return d[1]+y_adjust;} )
+                .attr("r", 7)
+                .attr("fill","black")
+                .style('opacity', 1);
+          }
+
           const endTime = performance.now();
           console.log("Execution time:", endTime - startTime, "milliseconds");
         };

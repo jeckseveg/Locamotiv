@@ -47,6 +47,8 @@ def send_data():
         js_data = request.get_json()  # Parse JSON data from request body
         frame_number = js_data['frame_number']
         activated_cameras = process_cameras(js_data['activated_cameras'])
+        min_points = js_data['min_points']
+        print(min_points)
         
         # filter frame ground points for desired cameras
         frame_ground_points = ground_points[frame_number]
@@ -60,7 +62,7 @@ def send_data():
         # create graph and perform point merging
         threshold = 40
         G, position_dict = create_graph(filtered_ground_points, threshold)
-        G = consolidate_projections(G,max_dist=40)
+        #G = consolidate_projections(G,max_dist=40)
         #print(G)
         #print("Data received from JavaScript:", js_data)
         #print(js_data)
@@ -68,8 +70,10 @@ def send_data():
         # prepare graph data for 
         node_data = dict(G.nodes(data=True))
         edge_data = list(G.edges)
+        centroids = list(compute_centroids(G,min_points))
         payload = {'nodes':node_data, # store in dict for transfer to frontend
-                   'edges':edge_data}
+                   'edges':edge_data,
+                   'centroids':centroids}
 
         filename = 'static/data/chase_1/graph_data.pkl'
         with open(filename,'rb') as f:
