@@ -2,3 +2,5 @@
 *.npy
 *.mp4
 *.pkl
+*.webm
+*.DS_Store
