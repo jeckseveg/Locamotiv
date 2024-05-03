@@ -187,3 +187,20 @@ video {
   margin-left: 5px; /* Add some margin between slider and value */
   color: #333; /* Make the value stand out (optional) */
 }
+
+form {
+  display: flex; /* Make the form a flex container */
+  align-items: center; /* Align content vertically */
+  justify-content: center; /* Align content horizontally */
+  width: fit-content; /* Adjust width as needed */
+  padding: 10px; /* Add some padding */
+  border-radius: 5px; /* Set rounded corners */
+  background-color: #333; /* Optional background color */
+}
+
+label {
+  margin-right: 3px; /* Add margin between label and select */
+  font-family: Arial, sans-serif; /* Set desired font family */
+  font-size: 12px; /* Set font size */
+  color:white; /* Set font color */
+}

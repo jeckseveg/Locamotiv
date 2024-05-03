@@ -24,7 +24,6 @@ def run_localization():
     json_body = request.form['payload']
     json_body = json.loads(json_body)
 
-    print(json_body)
 
     # process json
     location = json_body['location']
@@ -48,7 +47,7 @@ def send_data():
         frame_number = js_data['frame_number']
         activated_cameras = process_cameras(js_data['activated_cameras'])
         min_points = js_data['min_points']
-        print(min_points)
+        max_dist = int(js_data['max_distance'])
         
         # filter frame ground points for desired cameras
         frame_ground_points = ground_points[frame_number]
@@ -60,8 +59,7 @@ def send_data():
                 filtered_ground_points.append([])
         
         # create graph and perform point merging
-        threshold = 40
-        G, position_dict = create_graph(filtered_ground_points, threshold)
+        G, position_dict = create_graph(filtered_ground_points, max_dist)
         #G = consolidate_projections(G,max_dist=40)
         #print(G)
         #print("Data received from JavaScript:", js_data)
@@ -92,7 +90,6 @@ def send_data():
 def process_data():
     json_body = request.form['payload']
     json_body = json.loads(json_body)
-    print(json_body)
     data = request.get_json()["data"]
     # Process data (example: reverse the string)
     result = data[::-1]

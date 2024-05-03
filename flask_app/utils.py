@@ -27,7 +27,6 @@ def create_graph(frame_transformed_points, threshold):
 
     communities= hierarchical_clustering_color_dynamic(G.copy())
     communities = process_communities(communities)
-    print(communities)
     G = create_clustered_graph(communities, G)
     return G, position_dict
 
@@ -48,9 +47,7 @@ def consolidate_projections(G):
             u_color = u['color']
             v_color = v['color']
             
-            #print(f"going through edges for u node {u_id}")
             u_neighbors = G.edges(u_id)
-            #print(f"u neighbors: {u_neighbors}")
             for neighbor in list(u_neighbors).copy(): # go through u neighboring nodes and remove connections to same color as v
                 if G.edges[neighbor]['visited']==False and neighbor in G.edges:
                     w_id = neighbor[1]
@@ -91,7 +88,6 @@ def compute_centroids(G,min_points):
     '''
     Takes graph as argument and returns the midpoints of all connected components'''  
     connected_components = list(nx.connected_components(G))
-    print(connected_components)
     centroids = []
     for group in connected_components:
         if len(group)>=min_points:
@@ -104,9 +100,8 @@ def compute_centroids(G,min_points):
     if min_points==1:
         for node in G.adjacency():
             if len(node[1])==0:
-                print(G.nodes[node[0]])
                 centroids.append(G.nodes[node[0]]['position'])
-
+    #print(centroids)
     return centroids
 
 
@@ -129,6 +124,7 @@ def hierarchical_clustering_color_dynamic(G):
     min_edge = None
 
     sorted_edges = sorted(G.edges(), key=lambda edge: G.edges[edge[0], edge[1]]['weight'])
+    sorted_edges.reverse()
     # Find closest edge where nodes have different colors
     for edge in sorted_edges:
       u, v = edge  # Unpack the edge tuple

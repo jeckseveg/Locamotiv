@@ -19,7 +19,7 @@
     <div class="about">
       <h1 style="text-align:center;">VizML Final Project</h1>
       <h4 style="text-align:center;">The code can be found on Github <a href="https://github.com/jeckseveg/interactive_localization">here</a></h4>
-      <h4 style="text-align:center;">The St dataset <a href="https://github.com/jeckseveg/interactive_localization">here</a></h4>
+      <h4 style="text-align:center;">The StreetAware dataset can be found <a href="https://drive.google.com/drive/folders/1BPtiIF8gBOoZANAGkwDjJUYakpCUYHM1">here</a></h4>
     </div>
     
       <!-- load javascript here -->
@@ -47,23 +47,46 @@
           <div class="column"><button id="toggle-centroids" activated="True">Toggle Centroids</button></div><!-- >Localize detections</button> -->
           <div class="column"><button id="toggle-ground-points" activated="True" >Toggle Points</button></div>
           <div class="column"><button id="toggle-boxes" activated="False" >Toggle Boxes</button></div>
+          
+        </div>
+        <div class="row">
           <div class="column">
             <div class="slider-container">
-              <label for="opacity-slider">Min Centroid Points</label>
-              <input type="range" id="opacity-slider" min="1" max="8" value="2" class="slider" >
-              <span id="slider-value">2</span>
+              <label for="centroid-slider">Min Centroid Points</label>
+              <input type="range" id="centroid-slider" min="1" max="8" value="2" class="slider" >
+              <span id="centroid-slider-value">2</span>
             </div>
           </div>
+          <div class="column">
+            <div class="slider-container">
+              <label for="max-dist-slider">Max Clustering Distance</label>
+              <input type="range" id="max-dist-slider" min="5" max="70" value="40" class="slider" >
+              <span id="max-dist-slider-value">40</span>
+            </div>
+          </div>
+          <div class="column">
+            <div class="slider-container">
+              <label for="opacity-slider">Ground Point Opacity</label>
+              <input type="range" id="opacity-slider" min="0" max="100" value="100" class="slider" >
+              <span id="opacity-slider-value">100</span>
+            </div>
+          </div>
+          
         </div>
         <!-- Button controls -->
         <script>
-          
+          let opacity = 1.0
+          let max_dist = 40
           let centroids_active = true;
           let ground_points_active = true;
           let box_toggler_active = false;
-          var slider = document.getElementById("opacity-slider")
-          var valueSpan = document.getElementById("slider-value")
-          
+          var centroid_slider = document.getElementById("centroid-slider")
+          var centroid_valueSpan = document.getElementById("centroid-slider-value")
+          var max_dist_slider = document.getElementById("max-dist-slider")
+          var max_dist_valueSpan = document.getElementById("max-dist-slider-value")
+          var opacity_slider = document.getElementById("opacity-slider")
+          var opacity_valueSpan = document.getElementById("opacity-slider-value")
+
           // select all buttons and add event listener for each
           var ground_points_button = $("#toggle-ground-points")[0];
           ground_points_button.addEventListener("click", toggle_ground_points)
@@ -87,7 +110,7 @@
                 ground_points_button.setAttribute('activated','True')
                 ground_points_active = true
               }
-              frameUpdateEngine(0);
+              updateSVG();
           }
           function toggle_centroids() {
               // turn on/off
@@ -106,14 +129,24 @@
                 centroid_button.style.opacity = 1.0;
                 centroids_active = true;
               }
-              frameUpdateEngine(0);
+              updateSVG();
           }
 
 
           // slider update behavior
-          slider.oninput = function() {
-            valueSpan.textContent = this.value;
+          centroid_slider.oninput = function() {
+            centroid_valueSpan.textContent = this.value;
             frameUpdateEngine(0);
+          };
+          max_dist_slider.oninput = function() {
+            max_dist_valueSpan.textContent = this.value;
+            max_dist=this.value;
+            frameUpdateEngine(0);
+          };
+          opacity_slider.oninput = function() {
+            opacity_valueSpan.textContent = this.value;
+            opacity = 0.01*this.value;
+            updateSVG();
           };
 
         </script>
@@ -285,7 +318,7 @@
               video_i.load();
               video_i.currentTime = currentTime;
               };
-              frameUpdateEngine(0)
+              updateSVG();
             }
           
 
@@ -308,7 +341,7 @@
               
               reload_videos(box_toggler_active);
             }
-            frameUpdateEngine(0);
+            updateSVG();
           }
         </script>
         
@@ -398,15 +431,21 @@
         // get location and active sensor info
         var new_buttons = document.querySelectorAll('.button-container button');
         var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
+        
+        let graph_data = 0;
+        
         // function to run every frame
         async function frameUpdateEngine(timestamp) {
-          var min_points = parseInt(document.getElementById("opacity-slider").value)
+          const startTime = performance.now();
+          var min_points = parseInt(document.getElementById("centroid-slider").value)
           currentFrame = Math.floor(fps*video_1.currentTime) // store current frame for operations
-          if(currentFrame%2 === 0){
+          //if(currentFrame%5 === 0){
             // create payload for flask
             var new_buttons = document.querySelectorAll('.button-container button');
             var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
+            
             var json_payload = JSON.stringify({
+              max_distance : max_dist,
               frame_number: currentFrame,
               activated_cameras: activatedValues,
               location: "chase_1",
@@ -418,19 +457,23 @@
             console.log(json_payload)
 
             // send payload
-            var graph_data = await sendAndReceiveData(json_payload)
+            graph_data = await sendAndReceiveData(json_payload)
             console.log("graph data")
             console.log(graph_data)
             
-            updateSVG(graph_data) // update the svg
-          }
+            updateSVG() // update the svg
+          //}
           // cleanse the video frame callback
-          video_1.cancelVideoFrameCallback(frameUpdateEngine);
+          //video_1.cancelVideoFrameCallback(frameUpdateEngine);
           video_1.requestVideoFrameCallback(frameUpdateEngine);
+          const endTime = performance.now();
+          console.log("Execution time:", endTime - startTime, "milliseconds");
+          
         }
+        
 
-        async function updateSVG(graph_data) {
-          const startTime = performance.now();
+        async function updateSVG() {
+          
           console.log(svg)
           console.log("^ svg")
           var nodeArray = Array.from(Object.values(graph_data.nodes));
@@ -456,7 +499,7 @@
                 .attr("cy", function (d) {return d.position[1]+y_adjust;} )
                 .attr("r", 4)
                 .attr("fill",function (d) { return d.color; } )
-                .style('opacity', 1);
+                .style('opacity', opacity);
 
             // paths for edges
             var link = d3.linkHorizontal()
@@ -477,7 +520,8 @@
               .join("path")
               .attr("stroke-width", 5)
               .attr("d", link)
-              .classed("link", true);
+              .style("opacity",opacity)
+              //.classed("link", true);
           }
 
           if (centroids_active){
@@ -490,12 +534,11 @@
                 .attr("cx", function (d) { return d[0]+x_adjust; } )
                 .attr("cy", function (d) {return d[1]+y_adjust;} )
                 .attr("r", 7)
-                .attr("fill","black")
+                .attr("fill","white")
+                .style("stroke", "black")  // Add stroke for outline
+                .style("stroke-width", 2)  // Adjust stroke width as needed
                 .style('opacity', 1);
           }
-
-          const endTime = performance.now();
-          console.log("Execution time:", endTime - startTime, "milliseconds");
         };
 
         var added = false
@@ -546,6 +589,15 @@
           <button activated="True">View 6</button>
           <button activated="True">View 7</button>
           <button activated="True">View 8</button>
+          <form>
+            <label for="playback_label">Playback Speed:</label>
+            <select name="playback_speed" id="playback_speed" onchange="updatePlaybackSpeed()">
+              <option value=1.0>1.00x</option>
+              <option value=0.75>0.75x</option>
+              <option value=0.5>0.50x</option>
+              <option value=0.25>0.25x</option>
+            </select>
+          </form>
           <script>
             // select all buttons and add event listener for each
             const buttons = document.querySelectorAll('.button-container button');
@@ -569,8 +621,17 @@
                 videos[i].style.opacity = 1.0
                 }
                 frameUpdateEngine(0);
-                console.log('hoorah')
               };
+            }
+
+            
+            function updatePlaybackSpeed(){
+              var selectedSpeed = document.getElementById("playback_speed").value;
+              console.log(selectedSpeed)
+              for(var i = 0; i < videos.length; i++){
+                videos[i].playbackRate = selectedSpeed
+              }
+              
             }
           </script>
         </div>
