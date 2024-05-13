@@ -5,7 +5,7 @@
 ## Setup Instructions
 - To be completed once app is more stable and has been packaged
 ## Using the tool
-
+![app_controls](images/Tool\ Layout.drawio\ (1).png)
 ## Roadmap
 - ~~Minimum viable product for submission~~
 - Fix bugs, improve javascript video and python clustering performance, refactor
