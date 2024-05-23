@@ -5,7 +5,7 @@
 ## Setup Instructions
 - To be completed once app is more stable and has been packaged
 ## Using the tool
-![app_controls](https://github.com/jeckseveg/Locamotiv/blob/main/images/tool_layout.png)
+![app_controls](https://github.com/jeckseveg/Locamotiv/blob/main/tool_layout.png)
 In the app's main screen there are two sections: one dedicated for the video footage and one dedicated to the localization process. 
 
 On the right, users can control playback for all 8 videos using the scrubber and play/pause button. Controls for playback speed are also included. Using the camera buttons, you can activate/disable individual cameras and toggle whether their detections should be included for localization.  
