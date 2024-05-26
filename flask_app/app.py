@@ -8,7 +8,7 @@ from flask_session import Session
 app = Flask(__name__)
 
 # store ground points
-with open("static/data/chase_1/ground_points/ground_points.pkl", "rb") as f:
+with open("static/data/chase_1/ground_points.pkl", "rb") as f:
     ground_points = pickle.load(f)
 
 @app.route("/", methods=["GET", "POST"])
@@ -73,10 +73,6 @@ def send_data():
                    'edges':edge_data,
                    'centroids':centroids}
 
-        filename = 'static/data/chase_1/graph_data.pkl'
-        with open(filename,'rb') as f:
-            ground_point_dict = pickle.load(f)
-        
         #print(f"ground point dict :{ground_point_dict}")
         #print(f"position dict: {payload}")
         return jsonify(payload)
