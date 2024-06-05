@@ -3,7 +3,6 @@ import pickle
 import numpy as np
 from utils import *
 from flask import Flask, jsonify, render_template, request, session
-from flask_session import Session
 
 app = Flask(__name__)
 
