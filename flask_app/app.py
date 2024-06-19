@@ -8,8 +8,8 @@ app = Flask(__name__)
 
 # store ground points (causes errors)
 print('pickling')
-with open("static/data/chase_1/ground_points.pkl", "rb") as f:
-    ground_points = pickle.load(f)
+'''with open("static/data/chase_1/ground_points.pkl", "rb") as f:
+    ground_points = pickle.load(f)'''
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -99,4 +99,5 @@ def get_data():
     return jsonify(data)
 
 if __name__ == '__main__':
+   print('main invoked')
    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 4000)), debug=False)
