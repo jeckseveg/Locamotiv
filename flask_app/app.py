@@ -9,8 +9,11 @@ app = Flask(__name__)
 
 # store ground points (causes errors)
 print('pickling')
-'''with open("static/data/chase_1/ground_points.pkl", "rb") as f:
-    ground_points = pickle.load(f)'''
+try:
+    with open("static/data/chase_1/ground_points.pkl", "rb") as f:
+        ground_points = pickle.load(f)
+except Exception as e:
+    print(f"Error loading ground points: {e}")
 
 @app.route("/", methods=["GET", "POST"])
 def home():
