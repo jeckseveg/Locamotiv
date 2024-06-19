@@ -16,14 +16,20 @@ def create_graph(frame_transformed_points, threshold):
                 position_dict[node_id] = p1
                 node_id+=1
 
+    # Iterate over all nodes in the graph
     for node_id in G.nodes:
+        # Compare each node with every other node
         for search_node_id in G.nodes:
-            if node_id!=search_node_id:
+            # Ensure the nodes are not the same to avoid self-loops
+            if node_id != search_node_id:
+                # Retrieve the data for both nodes being compared
                 node_1 = G.nodes[node_id]
                 node_2 = G.nodes[search_node_id]
+                # Calculate the Euclidean distance between the two nodes
                 distance = np.linalg.norm(np.array(node_1['position']) - np.array(node_2['position']))
+                # Add an edge if the nodes are from different cameras and are within the distance threshold
                 if distance < threshold and node_1['camera'] != node_2['camera']:
-                    G.add_edge(node_id,search_node_id,weight=distance,visited=False)
+                    G.add_edge(node_id, search_node_id, weight=distance, visited=False)
 
     communities= hierarchical_clustering_color_dynamic(G.copy())
     communities = process_communities(communities)
@@ -39,24 +45,15 @@ def consolidate_projections(G):
             # set edge as visited
             G.edges[edge]['visited'] = True
 
-            # variables
-            u = G.nodes[edge[0]] # u
-            v = G.nodes[edge[1]] # v
-            u_id = edge[0]
-            v_id = edge[1]
-            u_color = u['color']
-            v_color = v['color']
+            u, v = G.nodes[edge[0]], G.nodes[edge[1]]
+            u_id, v_id = edge[0], edge[1]
+            u_color, v_color = u['color'], v['color']
             
-            u_neighbors = G.edges(u_id)
-            for neighbor in list(u_neighbors).copy(): # go through u neighboring nodes and remove connections to same color as v
-                if G.edges[neighbor]['visited']==False and neighbor in G.edges:
-                    w_id = neighbor[1]
-                    w = G.nodes[neighbor[1]]
-                    if v_color == w['color']:
-                        G.remove_edge(*neighbor)
-                else:
-                    #print('visited')
-                    pass
+            for neighbor in list(G.edges(u_id)).copy():  # Iterate over u's neighbors
+                # Check if the edge has not been visited and the neighbor's color matches v's color
+                if not G.edges[neighbor]['visited'] and v_color == G.nodes[neighbor[1]]['color']:
+                    # Remove the edge if conditions are met
+                    G.remove_edge(*neighbor)
             
 
             #print(f"going through edges for v node {v_id}")

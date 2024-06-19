@@ -260,12 +260,15 @@ function formatTime(currentTime, totalDuration) {
   const totalMinutes = Math.floor(totalDuration / 60);
   const totalSeconds = Math.floor(totalDuration % 60);
 
-  // Format minutes and seconds with zero-padding using String.padStart()
-  const formattedCurrentMinutes = String(currentMinutes).padStart(2, "0");
-  const formattedCurrentSeconds = String(currentSeconds).padStart(2, "0");
-  const formattedTotalMinutes = String(totalMinutes).padStart(2, "0");
-  const formattedTotalSeconds = String(totalSeconds).padStart(2, "0");
+  // Concise time formatting with zero-padding
+  const padTime = (time) => String(time).padStart(2, "0");
+  return `${padTime(currentMinutes)}:${padTime(currentSeconds)} / ${padTime(totalMinutes)}:${padTime(totalSeconds)}`;
+}
 
-  // Return the formatted time string
-  return `${formattedCurrentMinutes}:${formattedCurrentSeconds} / ${formattedTotalMinutes}:${formattedTotalSeconds}`;
+function createGraph(){
+
+}
+
+function mergeGraph(){
+
 }
