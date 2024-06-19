@@ -6,13 +6,13 @@ from flask import Flask, jsonify, render_template, request, session
 
 app = Flask(__name__)
 
-# store ground points
-'''with open("static/data/chase_1/ground_points.pkl", "rb") as f:
-    ground_points = pickle.load(f)'''
+# store ground points (causes errors)
+print('pickling')
+with open("static/data/chase_1/ground_points.pkl", "rb") as f:
+    ground_points = pickle.load(f)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    print('hello world')
     return render_template('home.html')
 
 @app.route("/get_sample_data")
