@@ -8,8 +8,6 @@ from flask import Flask, jsonify, render_template, request, session
 app = Flask(__name__)
 
 # store ground points (causes errors)
-print('pickling')
-print('main invoked')
 print(os.listdir('static/data/chase_1/'))
 '''try:
     with open("static/data/chase_1/ground_points.pkl", "rb") as f:
@@ -19,6 +17,7 @@ except Exception as e:
 
 @app.route("/", methods=["GET", "POST"])
 def home():
+    print('render template home')
     return render_template('home.html')
 
 @app.route("/get_sample_data")
