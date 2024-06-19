@@ -1,5 +1,6 @@
 import json
 import pickle
+import os
 import numpy as np
 from utils import *
 from flask import Flask, jsonify, render_template, request, session
@@ -100,4 +101,5 @@ def get_data():
 
 if __name__ == '__main__':
    print('main invoked')
+   print(os.lisdir('static/data/chase_1/'))
    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 4000)), debug=False)
