@@ -15,6 +15,11 @@ print(os.listdir('static/data/chase_1/'))
 except Exception as e:
     print(f"Error loading ground points: {e}")
 '''
+
+with open("static/data/chase_1/ground_points.pkl","rb") as f:
+    print(f.read()[:100])
+
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     print('render template home')
