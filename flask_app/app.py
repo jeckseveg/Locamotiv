@@ -10,7 +10,7 @@ app = Flask(__name__)
 # store ground points (causes errors)
 print('pickling')
 print('main invoked')
-print(os.lisdir('static/data/chase_1/'))
+print(os.listdir('static/data/chase_1/'))
 '''try:
     with open("static/data/chase_1/ground_points.pkl", "rb") as f:
         ground_points = pickle.load(f)
