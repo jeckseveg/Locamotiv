@@ -1,7 +1,16 @@
 import os
 import numpy as np
 import networkx as nx
+import json
 
+def write_list_to_json(data, filename):
+    with open(filename, 'w') as file:
+        json.dump(data, file)
+
+def read_list_from_json(filename):
+    with open(filename, 'r') as file:
+        data = json.load(file)
+    return data
 
 def create_graph(frame_transformed_points, threshold):
     G = nx.Graph()
