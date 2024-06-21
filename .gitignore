@@ -4,6 +4,7 @@
 *.pkl
 *.zip
 *.png
+*.pyc
 *.jpg
 *.webm
 *.DS_Store

@@ -265,8 +265,42 @@ function formatTime(currentTime, totalDuration) {
   return `${padTime(currentMinutes)}:${padTime(currentSeconds)} / ${padTime(totalMinutes)}:${padTime(totalSeconds)}`;
 }
 
-function createGraph(){
+function createGraph(frameTransformedPoints, threshold) {
+  let G = new networkx.Graph();
+  let colors = {0: 'red', 1: '#00CC66', 2: '#3399FF', 3: 'orange', 4: '#CC33CC', 5: 'yellow', 6: 'white', 7: '#ff9999'};
+  let positionDict = {};
+  let nodeId = 0;
 
+  frameTransformedPoints.forEach((groundPoints, cameraId) => {
+      groundPoints.forEach((p1, i) => {
+          if (p1[0] > 0 && p1[1] > 0) {
+              G.addNode(nodeId, {camera: cameraId, position: p1, color: colors[cameraId], visited: false});
+              positionDict[nodeId] = p1;
+              nodeId++;
+          }
+      });
+  });
+
+  G.nodes.forEach((node1, nodeId) => {
+      G.nodes.forEach((node2, searchNodeId) => {
+          if (nodeId !== searchNodeId) {
+              let distance = Math.sqrt(
+                  Math.pow(node1.position[0] - node2.position[0], 2) +
+                  Math.pow(node1.position[1] - node2.position[1], 2)
+              );
+              if (distance < threshold && node1.camera !== node2.camera) {
+                  G.addEdge(nodeId, searchNodeId, {weight: distance, visited: false});
+              }
+          }
+      });
+  });
+
+  // Assuming hierarchical_clustering_color_dynamic and process_communities are implemented
+  let communities = hierarchicalClusteringColorDynamic(networkx.clone(G));
+  communities = processCommunities(communities);
+  G = createClusteredGraph(communities, G);
+
+  return [G, positionDict];
 }
 
 function mergeGraph(){
