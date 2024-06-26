@@ -20,10 +20,10 @@ app = Flask(__name__)
 parser.add_argument('--on-local', action='store_true', help='Flag indicating if running on local')
 args = parser.parse_args()'''
 
-on_local = False#args.on_local  # Access the parsed flag
-print(on_local)
+'''on_local = False#args.on_local  # Access the parsed flag
+print(on_local)'''
 
-if not on_local: 
+'''if not on_local: 
     assert os.environ.get("DATA_PATH"),"No environment variable set for DATA_PATH"
     data_path = os.environ.get("DATA_PATH")
     ground_points_path = f"{data_path}/chase_1/ground_points.json"
@@ -35,19 +35,19 @@ if not on_local:
                     3:{"left":f"{data_path}/chase_1/sensor_3/video/left_quarter.mp4",
                        "right":f"{data_path}/chase_1/sensor_3/video/right_quarter.mp4"},
                     4:{"left":f"{data_path}/chase_1/sensor_4/video/left_quarter.mp4",
-                       "right":f"{data_path}/chase_1/sensor_4/video/right_quarter.mp4"}}
+                       "right":f"{data_path}/chase_1/sensor_4/video/right_quarter.mp4"}}'''
     
-if on_local: 
-    ground_points_path = "static/data/chase_1/ground_points.json"
-    video_paths = {
-                    1:{"left":"../static/data/chase_1/sensor_1/video/left_quarter.mp4",
-                       "right":"../static/data/chase_1/sensor_1/video/right_quarter.mp4"},
-                    2:{"left":"../static/data/chase_1/sensor_2/video/left_quarter.mp4",
-                       "right":"../static/data/chase_1/sensor_2/video/right_quarter.mp4"},
-                    3:{"left":"../static/data/chase_1/sensor_3/video/left_quarter.mp4",
-                       "right":"../static/data/chase_1/sensor_3/video/right_quarter.mp4"},
-                    4:{"left":"../static/data/chase_1/sensor_4/video/left_quarter.mp4",
-                       "right":"../static/data/chase_1/sensor_4/video/right_quarter.mp4"}}
+#if on_local: 
+ground_points_path = "static/data/chase_1/ground_points.json"
+video_paths = {
+                1:{"left":"../static/data/chase_1/sensor_1/video/left_quarter.mp4",
+                    "right":"../static/data/chase_1/sensor_1/video/right_quarter.mp4"},
+                2:{"left":"../static/data/chase_1/sensor_2/video/left_quarter.mp4",
+                    "right":"../static/data/chase_1/sensor_2/video/right_quarter.mp4"},
+                3:{"left":"../static/data/chase_1/sensor_3/video/left_quarter.mp4",
+                    "right":"../static/data/chase_1/sensor_3/video/right_quarter.mp4"},
+                4:{"left":"../static/data/chase_1/sensor_4/video/left_quarter.mp4",
+                    "right":"../static/data/chase_1/sensor_4/video/right_quarter.mp4"}}
 
 ground_points = read_list_from_json(ground_points_path)
 
