@@ -1,6 +1,7 @@
+import os
 import json
 import pickle
-import os
+import argparse
 import numpy as np
 from utils import *
 from flask import Flask, jsonify, render_template, request, session
@@ -15,16 +16,46 @@ app = Flask(__name__)
 # except Exception as e:
 #     print(f"Error loading ground points: {e}")
 
-ground_points = read_list_from_json("static/data/chase_1/ground_points.json")
+parser = argparse.ArgumentParser(description='Flask app for processing localization data')
+parser.add_argument('--on-local', action='store_true', help='Flag indicating if running on local')
+args = parser.parse_args()
+
+on_local = args.on_local  # Access the parsed flag
+print(on_local)
+
+if not on_local: 
+    assert os.environ.get("DATA_PATH"),"No environment variable set for DATA_PATH"
+    data_path = os.environ.get("DATA_PATH")
+    ground_points_path = f"{data_path}/data/chase_1/ground_points.json"
+    video_paths = {
+                    1:{"left":f"{data_path}/chase_1/sensor_1/video/left_quarter.mp4",
+                       "right":f"{data_path}/chase_1/sensor_1/video/right_quarter.mp4"},
+                    2:{"left":f"{data_path}/chase_1/sensor_2/video/left_quarter.mp4",
+                       "right":f"{data_path}/chase_1/sensor_2/video/right_quarter.mp4"},
+                    3:{"left":f"{data_path}/chase_1/sensor_3/video/left_quarter.mp4",
+                       "right":f"{data_path}/chase_1/sensor_3/video/right_quarter.mp4"},
+                    4:{"left":f"{data_path}/chase_1/sensor_4/video/left_quarter.mp4",
+                       "right":f"{data_path}/chase_1/sensor_4/video/right_quarter.mp4"}}
+    
+if on_local: 
+    ground_points_path = "static/data/chase_1/ground_points.json"
+    video_paths = {
+                    1:{"left":"../static/data/chase_1/sensor_1/video/left_quarter.mp4",
+                       "right":"../static/data/chase_1/sensor_1/video/right_quarter.mp4"},
+                    2:{"left":"../static/data/chase_1/sensor_2/video/left_quarter.mp4",
+                       "right":"../static/data/chase_1/sensor_2/video/right_quarter.mp4"},
+                    3:{"left":"../static/data/chase_1/sensor_3/video/left_quarter.mp4",
+                       "right":"../static/data/chase_1/sensor_3/video/right_quarter.mp4"},
+                    4:{"left":"../static/data/chase_1/sensor_4/video/left_quarter.mp4",
+                       "right":"../static/data/chase_1/sensor_4/video/right_quarter.mp4"}}
+
+ground_points = read_list_from_json(ground_points_path)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
     print('render template home')
-    return render_template('home.html')
+    return render_template('home.html', video_paths=video_paths)
 
-@app.route("/get_sample_data")
-def get_sample_data():
-    return
 
 @app.route("/run_localization", methods = ['POST'])
 def run_localization():
@@ -84,9 +115,6 @@ def send_data():
         #print(f"position dict: {payload}")
         return jsonify(payload)
         
-        #return jsonify(data)
-    #except Exception as e:  # Handle potential JSON parsing errors
-    #  return jsonify({"error": str(e)}), 400  # Bad request error
     
 
 @app.route("/process_data", methods=["POST"])
