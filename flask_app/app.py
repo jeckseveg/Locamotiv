@@ -16,11 +16,11 @@ app = Flask(__name__)
 # except Exception as e:
 #     print(f"Error loading ground points: {e}")
 
-parser = argparse.ArgumentParser(description='Flask app for processing localization data')
+'''parser = argparse.ArgumentParser(description='Flask app for processing localization data')
 parser.add_argument('--on-local', action='store_true', help='Flag indicating if running on local')
-args = parser.parse_args()
+args = parser.parse_args()'''
 
-on_local = args.on_local  # Access the parsed flag
+on_local = False#args.on_local  # Access the parsed flag
 print(on_local)
 
 if not on_local: 
