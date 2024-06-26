@@ -26,7 +26,7 @@ print(on_local)
 if not on_local: 
     assert os.environ.get("DATA_PATH"),"No environment variable set for DATA_PATH"
     data_path = os.environ.get("DATA_PATH")
-    ground_points_path = f"{data_path}/data/chase_1/ground_points.json"
+    ground_points_path = f"{data_path}/chase_1/ground_points.json"
     video_paths = {
                     1:{"left":f"{data_path}/chase_1/sensor_1/video/left_quarter.mp4",
                        "right":f"{data_path}/chase_1/sensor_1/video/right_quarter.mp4"},
