@@ -8,3 +8,4 @@
 *.jpg
 *.webm
 *.DS_Store
+flask_app/templates/javascript_clustering.js

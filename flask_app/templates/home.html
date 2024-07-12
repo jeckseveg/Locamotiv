@@ -6,6 +6,23 @@
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 
+
+<!-- load ground points json  -->
+<script> 
+const groundPointsPath = 'static/data/chase_1/ground_points.json';
+let groundPoints;
+let G;
+fetch(groundPointsPath)
+    .then(response => response.json())
+    .then(data => {
+        groundPoints = data;
+        console.log('Ground points loaded:', groundPoints);
+    })
+    .catch(error => {
+        console.error('Error loading ground points:', error);
+    });
+</script>
+
  <head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -25,8 +42,6 @@
     </div>
 
     <script>
-    console.log(G);
-    console.log("graph created");
     const express = require('express')
     const app = express()
     const port = process.env.PORT || 4000;
@@ -184,7 +199,7 @@
 
       <!-- Right section -->
       <div class="right-content" id="right_section">
-        <!-- Dynamic Video Section -->
+        <!-- Video Container -->
         <div class="video box" style="padding-bottom: 20px;">
           <!-- <canvas id="videoCanvas"></canvas> -->
           <div class='row'>
