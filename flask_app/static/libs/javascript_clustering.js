@@ -1,14 +1,15 @@
 
 // IMPORTANT FUNCTIONS // IMPORTANT FUNCTIONS // IMPORTANT FUNCTIONS // IMPORTANT FUNCTIONS 
-function clusterFrame(groundPoints, frameIndex, maxDistance, minPoints, verbose = false){
+function clusterFrame(groundPoints, frameIndex, maxDistance, minPoints, activatedValues, verbose = false){
     console.log("forming clusters...")
     let G = new jsnx.Graph();
     let frameGroundPoints = groundPoints[frameIndex];
     let clusters = [];
     let clusterCameras = [];
-
+    let activeCameras = processActivatedValues(activatedValues);
+    console.log(activatedValues);
     // create graph with initial edges and cluster nodes
-    G = createGraph(G, frameGroundPoints, maxDistance); // create base graph with initial connections
+    G = createGraph(G, frameGroundPoints, maxDistance, activeCameras); // create base graph with initial connections
     G = createClusters(G, clusters, clusterCameras, verbose=false); // create clustered graph
 
     // create centroids for nodes without edges
@@ -41,13 +42,15 @@ function clusterFrame(groundPoints, frameIndex, maxDistance, minPoints, verbose 
 
 
 // create initial graph with all elements within distance connected
-function createGraph(G, frame, maxDistance) {
+function createGraph(G, frame, maxDistance, activeCameras) {
     let pointIndex = 0;
     frame.forEach((camera, cameraIndex) => { // iterate through each cameras data
-        camera.forEach((groundPoint) => { // iterate through each ground point in the camera
-            G.addNode(pointIndex, { camera: cameraIndex, position: groundPoint });
-            pointIndex++;
-        });
+        if (activeCameras[cameraIndex]) {
+            camera.forEach((groundPoint) => { // iterate through each ground point in the camera
+                G.addNode(pointIndex, { camera: cameraIndex, position: groundPoint });
+                pointIndex++;
+            });
+    }
     });
     G = createEdges(G, frame, maxDistance); // create edges between all points within maxDistance
     return G;
@@ -269,6 +272,15 @@ function findIntersection(arr1, arr2) {
 // square euclidean distance between two points
 function euclideanDistance(p1, p2) {
     return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2));
+}
+// convert ['true','true','false'] => [true,true,false]
+function processActivatedValues(strArray){
+    boolArray = [];
+    strArray.forEach((string)=>{
+        if (string === "true") {boolArray.push(true);}
+        else {boolArray.push(false);}
+    })
+    return boolArray;
 }
 
 var module;

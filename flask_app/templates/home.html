@@ -58,9 +58,9 @@ let groundPoints; // Declare globally
       <div class="left-content" id="left_section">
         <div id="topdown"></div>
         <div class='row'>
-          <div class="column"><button id="toggle-centroids" activated="True">Toggle Centroids</button></div><!-- >Localize detections</button> -->
-          <div class="column"><button id="toggle-ground-points" activated="True" >Toggle Points</button></div>
-          <div class="column"><button id="toggle-boxes" activated="False" >Toggle Boxes</button></div>
+          <div class="column"><button id="toggle-centroids" activated=true>Toggle Centroids</button></div><!-- >Localize detections</button> -->
+          <div class="column"><button id="toggle-ground-points" activated=true >Toggle Points</button></div>
+          <div class="column"><button id="toggle-boxes" activated=false >Toggle Boxes</button></div>
           
         </div>
         <div class="row">
@@ -272,7 +272,7 @@ let groundPoints; // Declare globally
           var box_toggler = document.getElementById("toggle-boxes");
           box_toggler.addEventListener("click", toggle_boxes);
           box_toggler_active = false;
-          box_toggler.setAttribute('activated','False');
+          box_toggler.setAttribute('activated', "false");
           box_toggler.style.backgroundColor = "#533";
         </script>
         
@@ -380,14 +380,14 @@ let groundPoints; // Declare globally
       </script>
         <!-- camera selector -->
         <div class ="button-container">
-          <button activated="True">View 1</button>
-          <button activated="True">View 2</button>
-          <button activated="True">View 3</button>
-          <button activated="True">View 4</button>
-          <button activated="True">View 5</button>
-          <button activated="True">View 6</button>
-          <button activated="True">View 7</button>
-          <button activated="True">View 8</button>
+          <button activated=true>Toggle 1</button>
+          <button activated=true>Toggle 2</button>
+          <button activated=true>Toggle 3</button>
+          <button activated=true>Toggle 4</button>
+          <button activated=true>Toggle 5</button>
+          <button activated=true>Toggle 6</button>
+          <button activated=true>Toggle 7</button>
+          <button activated=true>Toggle 8</button>
           <form>
             <label for="playback_label">Playback Speed:</label>
             <select name="playback_speed" id="playback_speed" onchange="updatePlaybackSpeed()">

@@ -41,13 +41,13 @@ function bindClick(i) {
     // turn on/off
     if (buttons[i].style.backgroundColor!='rgb(85, 51, 51)'){
     buttons[i].style.backgroundColor = "#533"
-    buttons[i].setAttribute('activated','False')
+    buttons[i].setAttribute('activated','false')
     videos[i].style.opacity = 0.5
     }
     // turn off/on
     else{
     buttons[i].style.backgroundColor = "#333"
-    buttons[i].setAttribute('activated','True')
+    buttons[i].setAttribute('activated','true')
     videos[i].style.opacity = 1.0
     }
     frameUpdateEngine(0);
@@ -88,14 +88,9 @@ async function updateSVG() {
     // paths for edges
     var link = d3.linkHorizontal()
           .source(function(d) {
-            //console.log("line");
-            //console.log(nodeObject[d[0]]['position']);
-            //console.log([nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust])
               return [nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust];
           })
           .target(function(d) {
-            //console.log(d)
-            //console.log([nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust])
               return [nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust];
           });
     d3.select("#svg-id") 
@@ -109,7 +104,6 @@ async function updateSVG() {
   }
 
   if (centroidsActive){
-    // code to draw the centroids here
     // code to draw the centroids here
     g.selectAll("centroid")
       .data(centroidArray)
@@ -134,22 +128,8 @@ async function frameUpdateEngine(timestamp, ground_points) {
     // create payload for flask
     var newButtons = document.querySelectorAll('.button-container button');
     var activatedValues = Array.from(newButtons).map(button => button.getAttribute("activated"));
-    
-    var json_payload = JSON.stringify({
-      max_distance : max_dist,
-      frameNumber: currentFrame,
-      activated_cameras: activatedValues,
-      location: "chase_1",
-      minPoints: minPoints
-    });
 
-    // print frame number
-    console.log(`Current Frame: ${currentFrame}`);
-    console.log(json_payload)
-
-    // send payload
-    //graph_data = await sendAndReceiveData(json_payload)
-    clusteredPoints = clusterFrame(groundPoints, currentFrame, max_dist, minPoints, verbose=true);
+    clusteredPoints = clusterFrame(groundPoints, currentFrame, max_dist, minPoints, activatedValues, verbose=true);
     console.log("graph data")
     console.log(clusteredPoints)
     
@@ -185,10 +165,10 @@ function reload_videos(box_toggler_active) {
 function toggle_boxes() {
   // turn off
   var box_toggler = document.getElementById("toggle-boxes")
-  console.log(box_toggler.getAttribute("activated")==="True")
-  if (box_toggler.getAttribute("activated")==="True"){
+  console.log(box_toggler.getAttribute("activated")==="true")
+  if (box_toggler.getAttribute("activated")==="true"){
     box_toggler_active = false;
-    box_toggler.setAttribute('activated','False');
+    box_toggler.setAttribute('activated','false');
     box_toggler.style.backgroundColor = "#533";
     
     reload_videos(box_toggler_active);
@@ -196,7 +176,7 @@ function toggle_boxes() {
   // turn on
   else{
     box_toggler_active = true;
-    box_toggler.setAttribute('activated','True');
+    box_toggler.setAttribute('activated','true');
     box_toggler.style.backgroundColor = "#333";
     
     reload_videos(box_toggler_active);
