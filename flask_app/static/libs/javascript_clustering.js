@@ -42,36 +42,31 @@ fs.readFile(groundPointsPath, 'utf8', (err, data) => {
     G = createClusters(G, clusters, clusterCameras, verbose=false); // create clustered graph
 
     // create centroids for nodes without edges
-    var nodes = G.nodes(true);
-    nodes.forEach((node)=>{
-        if (node[1]['cluster'] === undefined) {
-            initializeSoloCluster(clusters, clusterCameras, node[0]);
-        };
-    });
-
-
-    // remove blank clusters from arrays
+    G = initializeStragglerClusters(G, clusters, clusterCameras)
+   
+    // remove blank clusters from arrays and prune unclustered edges
     clusters = clusters.filter(element => element !== undefined);
     clusterCameras = clusterCameras.filter(element => element !== undefined);
+    G = pruneEdges(G);
 
-    //console.log("clusters: "), console.log(clusters);
-    //console.log("cameras: "), console.log(clusterCameras);
-
-    // console.log(G.node.get(0))
-    // G.edges().forEach((edge)=>{
-    //     console.log(edge)
-    //     console.log(G.node.get(edge[0])['cluster'])
-    //     console.log(G.node.get(edge[1])['cluster'])
-    // })
-    nodes = G.nodes(true);
+    var nodes = G.nodes(true);
     var centroids = computeCentroids(clusters,G);
-    
-    console.log(nodes)
+    var edges = G.edges();
+    var nodeObject = {};
+
+    // reformat nodes from [id,nodeData] => {id:nodeData}
+    nodes.forEach((node)=>{
+        console.log("node")
+        nodeObject[node[0]] = node[1]
+    })
 
     
-
-    //console.log(G.edge.get(0).get(12)['weight']) // reference a connection between two nodes and get weight
-    //console.log(G)
+    console.log(G.edges().length)
+    console.log({
+        'centroids':centroids,
+        'edges':edges,
+        'nodes':nodeObject
+    })
 });
 
 
@@ -205,18 +200,16 @@ function initializeSoloCluster(clusters, clusterCameras, node1){
 
 // check to make sure two clusters meet criteria for merging
 // no nodes of same color
-function checkClusters(clusters, clusterCameras, node1, node2){
-    // console.log("check clusters")
-    // console.log(G.node.get(node1))
-    // console.log(G.node.get(node2))
+function checkClusters(clusters, clusterCameras, node1, node2, verbose=false){
+    if (verbose){
+        console.log("check clusters");
+        console.log(G.node.get(node1));
+        console.log(G.node.get(node2));
+    }
     let intersection = findIntersection(clusterCameras[G.node.get(node1)['cluster']],
                                         clusterCameras[G.node.get(node2)['cluster']]);
-    if (intersection.length<1){
-        return true;
-    }
-    else{
-        return false;
-    }
+    if (intersection.length<1){return true;}
+    else{return false;}
 }
 
 // reassign all old cluster nodes and cameras into the new clusters bin
@@ -246,7 +239,7 @@ function computeCentroids(clusters, G, verbose=false){
     clusters.forEach((cluster)=>{
         let xPositions = 0;
         let yPositions = 0;
-        console.log(cluster);
+        if(verbose){console.log(cluster);}
         cluster.forEach((node)=>{
             xPositions += G.node.get(node)['position'][0];
             yPositions += G.node.get(node)['position'][1];
@@ -256,6 +249,27 @@ function computeCentroids(clusters, G, verbose=false){
     if(verbose){console.log(centroids);}
     return centroids;
 }
+
+function pruneEdges(G){
+    G.edges().forEach(edge => {
+        if (differentCluster(edge[0],edge[1])){
+            G.removeEdge(edge[0], edge[1])
+        }
+    });
+    return G;
+}
+
+function initializeStragglerClusters(G, clusters, clusterCameras){
+    var nodes = G.nodes(true);
+    nodes.forEach((node)=>{
+        if (node[1]['cluster'] === undefined) {
+            initializeSoloCluster(clusters, clusterCameras, node[0]);
+        };
+    });
+    return G;
+}
+
+// SUPPORTING FUNCTIONS
 
 // return edges sorted by weight ascending
 function sortEdges(G) { 
@@ -270,16 +284,17 @@ function sortEdges(G) {
     return sortedEdges;
 }
 
-
 // check if two node id's are from different cameras
 function differentCamera(node1, node2) {
     return G.node.get(node1)['camera'] !== G.node.get(node2)['camera'];
 }
 
+function differentCluster(node1, node2) {
+    return G.node.get(node1)['cluster'] !== G.node.get(node2)['cluster'];
+}
+
 // returns array with intersecting elements
 function findIntersection(arr1, arr2) {
-    //console.log(arr1);
-    //console.log(arr2);
     return arr1.filter(element => arr2.includes(element));
 }
 
