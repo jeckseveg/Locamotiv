@@ -55,13 +55,12 @@ function bindClick(i) {
 }
 
 async function updateSVG() {
-  //console.log(svg)
-  //console.log("^ svg")
+
   // process raw graph data for d3
-  var nodeArray = Array.from(Object.values(graph_data.nodes));
-  var nodeObject = graph_data.nodes
-  var edgeArray = graph_data.edges
-  var centroidArray = graph_data.centroids
+  var nodeArray = Array.from(Object.values(clusteredPoints.nodes));
+  var nodeObject = clusteredPoints.nodes
+  var edgeArray = clusteredPoints.edges
+  var centroidArray = clusteredPoints.centroids
 
   // padding to make graph behave
   // change this to be some sort of fraction of image size
@@ -83,7 +82,7 @@ async function updateSVG() {
         .attr("cx", function (d) { return d.position[0]+x_adjust; } )
         .attr("cy", function (d) {return d.position[1]+y_adjust;} )
         .attr("r", 4)
-        .attr("fill",function (d) { return d.color; } )
+        .attr("fill",function (d) { return colorFunc(d.camera); } )
         .style('opacity', opacity);
 
     // paths for edges
@@ -109,7 +108,7 @@ async function updateSVG() {
       //.classed("link", true);
   }
 
-  if (centroids_active){
+  if (centroidsActive){
     // code to draw the centroids here
     // code to draw the centroids here
     g.selectAll("centroid")
@@ -127,21 +126,21 @@ async function updateSVG() {
 };
 
 // aync function to perform updates every frame
-async function frameUpdateEngine(timestamp) {
+async function frameUpdateEngine(timestamp, ground_points) {
   const startTime = performance.now();
-  var min_points = parseInt(document.getElementById("centroid-slider").value)
+  var minPoints = parseInt(document.getElementById("centroid-slider").value)
   currentFrame = Math.floor(fps*video_1.currentTime) // store current frame for operations
   //if(currentFrame%5 === 0){
     // create payload for flask
-    var new_buttons = document.querySelectorAll('.button-container button');
-    var activatedValues = Array.from(new_buttons).map(button => button.getAttribute("activated"));
+    var newButtons = document.querySelectorAll('.button-container button');
+    var activatedValues = Array.from(newButtons).map(button => button.getAttribute("activated"));
     
     var json_payload = JSON.stringify({
       max_distance : max_dist,
-      frame_number: currentFrame,
+      frameNumber: currentFrame,
       activated_cameras: activatedValues,
       location: "chase_1",
-      min_points: min_points
+      minPoints: minPoints
     });
 
     // print frame number
@@ -149,9 +148,10 @@ async function frameUpdateEngine(timestamp) {
     console.log(json_payload)
 
     // send payload
-    graph_data = await sendAndReceiveData(json_payload)
+    //graph_data = await sendAndReceiveData(json_payload)
+    clusteredPoints = clusterFrame(groundPoints, currentFrame, max_dist, minPoints, verbose=true);
     console.log("graph data")
-    console.log(graph_data)
+    console.log(clusteredPoints)
     
     updateSVG() // update the svg
   //}
@@ -226,20 +226,20 @@ function toggle_ground_points() {
 // toggle centroids on svg graph
 function toggle_centroids() {
   // turn on/off
-  var centroid_button = document.getElementById("toggle-centroids");
-  console.log(centroid_button.getAttribute("activated")==="True")
-  if (centroid_button.getAttribute("activated")==="True"){
-    centroid_button.style.backgroundColor = "#533";
-    centroid_button.setAttribute('activated','False');
-    centroid_button.style.opacity = 1.0;
-    centroids_active = false;
+  var centroidButton = document.getElementById("toggle-centroids");
+  console.log(centroidButton.getAttribute("activated")==="True")
+  if (centroidButton.getAttribute("activated")==="True"){
+    centroidButton.style.backgroundColor = "#533";
+    centroidButton.setAttribute('activated','False');
+    centroidButton.style.opacity = 1.0;
+    centroidsActive = false;
   }
   // turn off/on
   else{
-    centroid_button.style.backgroundColor = "#333";
-    centroid_button.setAttribute('activated','True');
-    centroid_button.style.opacity = 1.0;
-    centroids_active = true;
+    centroidButton.style.backgroundColor = "#333";
+    centroidButton.setAttribute('activated','True');
+    centroidButton.style.opacity = 1.0;
+    centroidsActive = true;
   }
   updateSVG();
 }
@@ -266,7 +266,7 @@ function formatTime(currentTime, totalDuration) {
 }
 
 function createGraph(frameTransformedPoints, threshold) {
-  let G = new networkx.Graph();
+  let G = new jsnx.Graph();
   let colors = {0: 'red', 1: '#00CC66', 2: '#3399FF', 3: 'orange', 4: '#CC33CC', 5: 'yellow', 6: 'white', 7: '#ff9999'};
   let positionDict = {};
   let nodeId = 0;
@@ -296,13 +296,30 @@ function createGraph(frameTransformedPoints, threshold) {
   });
 
   // Assuming hierarchical_clustering_color_dynamic and process_communities are implemented
-  let communities = hierarchicalClusteringColorDynamic(networkx.clone(G));
+  let communities = hierarchicalClusteringColorDynamic(jsnx.clone(G));
   communities = processCommunities(communities);
   G = createClusteredGraph(communities, G);
 
   return [G, positionDict];
 }
 
-function mergeGraph(){
+async function loadGroundPoints(){
+  try {
+    const response = await fetch("/send_ground_points", {
+      method: "GET",
+      });
+    
 
+    if (!response.ok) {
+      throw new Error(`Error fetching ground points: ${response.status}`);
+    }
+
+    const groundPoints = await response.json()
+    console.log("Ground Points:", groundPoints);
+   return groundPoints;
+    
+  } catch (error) {
+    console.error("Error:", error);
+  }
+  return groundPoints;
 }

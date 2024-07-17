@@ -52,41 +52,46 @@ def run_localization():
 def send_data():
   if request.method == "POST":
     #try:
-        js_data = request.get_json()  # Parse JSON data from request body
-        frame_number = js_data['frame_number']
-        activated_cameras = process_cameras(js_data['activated_cameras'])
-        min_points = js_data['min_points']
-        max_dist = int(js_data['max_distance'])
-        
-        # filter frame ground points for desired cameras
-        frame_ground_points = ground_points[frame_number]
-        filtered_ground_points = []
-        for activated,camera_data in zip(activated_cameras,frame_ground_points):
-            if activated:
-                filtered_ground_points.append(camera_data)
-            else:
-                filtered_ground_points.append([])
-        
-        # create graph and perform point merging
-        G, position_dict = create_graph(filtered_ground_points, max_dist)
-        #G = consolidate_projections(G,max_dist=40)
-        #print(G)
-        #print("Data received from JavaScript:", js_data)
-        #print(js_data)
-        
-        # prepare graph data for 
-        node_data = dict(G.nodes(data=True))
-        edge_data = list(G.edges)
-        centroids = list(compute_centroids(G,min_points))
-        payload = {'nodes':node_data, # store in dict for transfer to frontend
-                   'edges':edge_data,
-                   'centroids':centroids}
-
-        #print(f"ground point dict :{ground_point_dict}")
-        #print(f"position dict: {payload}")
-        return jsonify(payload)
-        
+    js_data = request.get_json()  # Parse JSON data from request body
+    frame_number = js_data['frame_number']
+    activated_cameras = process_cameras(js_data['activated_cameras'])
+    min_points = js_data['min_points']
+    max_dist = int(js_data['max_distance'])
     
+    # filter frame ground points for desired cameras
+    frame_ground_points = ground_points[frame_number]
+    filtered_ground_points = []
+    for activated,camera_data in zip(activated_cameras,frame_ground_points):
+        if activated:
+            filtered_ground_points.append(camera_data)
+        else:
+            filtered_ground_points.append([])
+    
+    # create graph and perform point merging
+    G, position_dict = create_graph(filtered_ground_points, max_dist)
+    #G = consolidate_projections(G,max_dist=40)
+    #print(G)
+    #print("Data received from JavaScript:", js_data)
+    #print(js_data)
+    
+    # prepare graph data for 
+    node_data = dict(G.nodes(data=True))
+    edge_data = list(G.edges)
+    centroids = list(compute_centroids(G,min_points))
+    payload = {'nodes':node_data, # store in dict for transfer to frontend
+                'edges':edge_data,
+                'centroids':centroids}
+
+    #print(f"ground point dict :{ground_point_dict}")
+    #print(f"position dict: {payload}")
+    return jsonify(payload)
+        
+
+@app.route("/send_ground_points", methods=["GET"])
+def send_ground_points():
+  if request.method == "GET":
+    return jsonify(ground_points)
+
 
 @app.route("/process_data", methods=["POST"])
 def process_data():

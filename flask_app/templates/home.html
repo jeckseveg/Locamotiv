@@ -3,24 +3,18 @@
 <!-- load javascript here -->
 <script src="static/libs/scripts.js"></script>
 <script src="static/libs/jsnetworkx.js"></script>
+<script src="static/libs/javascript_clustering.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
 
 
 <!-- load ground points json  -->
 <script> 
-const groundPointsPath = 'static/data/chase_1/ground_points.json';
-let groundPoints;
-let G;
-fetch(groundPointsPath)
-    .then(response => response.json())
-    .then(data => {
-        groundPoints = data;
-        console.log('Ground points loaded:', groundPoints);
-    })
-    .catch(error => {
-        console.error('Error loading ground points:', error);
-    });
+let groundPoints; // Declare globally
+
+(async () => {
+  groundPoints = await loadGroundPoints();
+})();
 </script>
 
  <head>
@@ -53,6 +47,9 @@ fetch(groundPointsPath)
     app.listen(port, () => {
       console.log(`Example app listening on port ${port}`)
     })
+
+    // load ground points for clustering
+    const ground_points = loadGroundPoints()
     </script>
 
     <!-- MAIN BODY OF WEB APP -->
@@ -90,11 +87,16 @@ fetch(groundPointsPath)
           </div>
           
         </div>
+        <div class="row">
+          <div class="column">
+            Each colored dot represents
+          </div>
+        </div>
         <!-- Button controls -->
         <script>
           let opacity = 1.0
           let max_dist = 40
-          let centroids_active = true;
+          let centroidsActive = true;
           let ground_points_active = true;
           let box_toggler_active = false;
           var centroid_slider = document.getElementById("centroid-slider")
@@ -113,12 +115,12 @@ fetch(groundPointsPath)
           // slider update behavior
           centroid_slider.oninput = function() {
             centroid_valueSpan.textContent = this.value;
-            frameUpdateEngine(0);
+            frameUpdateEngine(0, groundPoints);
           };
           max_dist_slider.oninput = function() {
             max_dist_valueSpan.textContent = this.value;
             max_dist=this.value;
-            frameUpdateEngine(0);
+            frameUpdateEngine(0, groundPoints);;
           };
           opacity_slider.oninput = function() {
             opacity_valueSpan.textContent = this.value;
@@ -372,7 +374,7 @@ fetch(groundPointsPath)
               }
             playImage.src = pauseIconPath; // update play / pause button
           }
-          frameUpdateEngine(0);
+          frameUpdateEngine(0, groundPoints);;
           isPlaying = !isPlaying;
         });
       </script>
