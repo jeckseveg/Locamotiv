@@ -37,20 +37,43 @@ fs.readFile(groundPointsPath, 'utf8', (err, data) => {
     let clusters = [];
     let clusterCameras = [];
 
+    // create graph with initial edges and cluster nodes
     G = createGraph(G, frame, maxDistance); // create base graph with initial connections
-    G = createClusters(G, clusters, clusterCameras); // create clustered graph
+    G = createClusters(G, clusters, clusterCameras, verbose=false); // create clustered graph
 
-    console.log("clusters: "), console.log(clusters);
-    console.log("cameras: "), console.log(clusterCameras);
-    //console.log(findIntersection(clusterCameras[0],clusterCameras[4]))
-    //console.log(checkClusters(clusters, clusterCameras, 0,9))
-    //console.log(G.nodes(true));
-    //console.log(G.edges());
-    //console.log(G.node.get(0));
+    // create centroids for nodes without edges
+    var nodes = G.nodes(true);
+    nodes.forEach((node)=>{
+        if (node[1]['cluster'] === undefined) {
+            initializeSoloCluster(clusters, clusterCameras, node[0]);
+        };
+    });
+
+
+    // remove blank clusters from arrays
+    clusters = clusters.filter(element => element !== undefined);
+    clusterCameras = clusterCameras.filter(element => element !== undefined);
+
+    //console.log("clusters: "), console.log(clusters);
+    //console.log("cameras: "), console.log(clusterCameras);
+
+    // console.log(G.node.get(0))
+    // G.edges().forEach((edge)=>{
+    //     console.log(edge)
+    //     console.log(G.node.get(edge[0])['cluster'])
+    //     console.log(G.node.get(edge[1])['cluster'])
+    // })
+    nodes = G.nodes(true);
+    var centroids = computeCentroids(clusters,G);
     
+    console.log(nodes)
+
+    
+
     //console.log(G.edge.get(0).get(12)['weight']) // reference a connection between two nodes and get weight
     //console.log(G)
 });
+
 
 
 // IMPORTANT FUNCTIONS // IMPORTANT FUNCTIONS // IMPORTANT FUNCTIONS // IMPORTANT FUNCTIONS 
@@ -84,43 +107,77 @@ function createEdges(G, frame, maxDistance) {
 }
 
 // wrapper function that takes in graph G and returns clustered graph
-function createClusters(G, clusters, clusterCameras) {
+function createClusters(G, clusters, clusterCameras, verbose=false) {
+
     let sortedEdges = sortEdges(G);  // list of 
-    //console.log(sortedEdges);
+    //sortedEdges.forEach(edge => {console.log(edge)});
     sortedEdges.forEach(edge => {
+        // console.log(sortedEdges);
         let node1 = edge[0];
         let node2 = edge[1];
         let weight = edge[2].weight;
 
+        // if both nodes are clustered then check if valid merge
+        if (G.node.get(node1)['cluster'] !== undefined && G.node.get(node2)['cluster'] !== undefined) {
+            if (G.node.get(node1)['cluster'] === G.node.get(node2)['cluster']){
+            }
+            else if (checkClusters(clusters, clusterCameras, node1, node2)){ // check color validity
+                mergeClusters(clusters, clusterCameras, node1, node2);
+                if (verbose){
+                    console.log("valid merge");
+                    console.log(clusterCameras[G.node.get(node1)['cluster']]),console.log(clusterCameras[G.node.get(node2)['cluster']]);
+                    
+                }
+            }
+            else{
+                if (verbose){
+                console.log("invalid merge");
+                console.log(clusterCameras[G.node.get(node1)['cluster']]),console.log(clusterCameras[G.node.get(node2)['cluster']]);
+                }
+            }
+        } 
+
+        // if one or more nodes is clustered then check if valid merge
+        if (G.node.get(node1)['cluster'] !== undefined && G.node.get(node2)['cluster'] === undefined) {
+            initializeSoloCluster(clusters, clusterCameras, node2);
+            if (checkClusters(clusters, clusterCameras, node1, node2)){ // check color validity
+                mergeClusters(clusters, clusterCameras, node2, node1);
+                if (verbose){
+                    console.log("valid merge");
+                    console.log(clusterCameras[G.node.get(node1)['cluster']]),console.log(clusterCameras[G.node.get(node2)['cluster']])
+                    }
+            }
+            else {
+                if (verbose){
+                    console.log("invalid merge");
+                    console.log(clusterCameras[G.node.get(node1)['cluster']]),console.log(clusterCameras[G.node.get(node2)['cluster']]);
+                    }
+            }
+        }
+        if (G.node.get(node1)['cluster'] === undefined && G.node.get(node2)['cluster'] !== undefined) {
+            initializeSoloCluster(clusters, clusterCameras, node1);
+            if (checkClusters(clusters, clusterCameras, node1, node2)){ // check color validity
+                mergeClusters(clusters, clusterCameras, node1, node2);
+                if (verbose){
+                    console.log("valid merge");
+                    console.log(clusterCameras[G.node.get(node1)['cluster']]),console.log(clusterCameras[G.node.get(node2)['cluster']]);
+                    }
+            }
+            else {
+                if (verbose){
+                    console.log("invalid merge");
+                    console.log(clusterCameras[G.node.get(node1)['cluster']]),console.log(clusterCameras[G.node.get(node2)['cluster']]);
+                    }
+            }
+        }
+
         // if both nodes unmatched then create new cluster
         if (G.node.get(node1)['cluster'] === undefined && G.node.get(node2)['cluster'] === undefined) {
             if (G.node.get(node1)['camera'] !== G.node.get(node2)['camera']) { // only initialize if different colors
-                initializeCluster(clusters, clusterCameras, node1, node2)
+                if (verbose){console.log("initialize cluster");}
+                initializeCluster(clusters, clusterCameras, node1, node2);
             }
         }
-
-        // if both nodes are clustered then check if valid merge
-        if (G.node.get(node1)['cluster'] !== undefined && G.node.get(node2)['cluster'] !== undefined) {
-            if (checkClusters(clusters, clusterCameras, node1, node2)){ // check color validity
-                console.log("valid merge");
-            }
-        }
-
-        // if one or more nodes is clustered then check if valid merge
-        if (G.node.get(node1)['cluster'] !== undefined) {
-            initializeSoloCluster(node1);
-            if (checkClusters(clusters, clusterCameras, node1, node2)){ // check color validity
-                console.log("valid merge");
-            }
-        }
-        if (G.node.get(node2)['cluster'] !== undefined) {
-            initializeSoloCluster(node2);
-            if (checkClusters(clusters, clusterCameras, node1, node2)){ // check color validity
-                console.log("valid merge");
-            }
-        }
-
-
     });
 
     return G;
@@ -139,18 +196,21 @@ function initializeCluster(clusters, clusterCameras, node1, node2) {
 }
 
 // create new cluster for single node
-function initializeSoloCluster(clusters, clusterCameras, node){
+function initializeSoloCluster(clusters, clusterCameras, node1){
     let clusterId = clusters.length;
-    clusters[clusterId] = [node];
-    clusterCameras[clusterId] = [G.node.get(node)['camera']];
-    G.node.get(node)['cluster'] = clusterId;
+    clusters[clusterId] = [node1];
+    clusterCameras[clusterId] = [G.node.get(node1)['camera']];
+    G.node.get(node1)['cluster'] = clusterId;
 }
 
 // check to make sure two clusters meet criteria for merging
 // no nodes of same color
 function checkClusters(clusters, clusterCameras, node1, node2){
+    // console.log("check clusters")
+    // console.log(G.node.get(node1))
+    // console.log(G.node.get(node2))
     let intersection = findIntersection(clusterCameras[G.node.get(node1)['cluster']],
-                                        clusterCameras[G.node.get(node1)['cluster']]);
+                                        clusterCameras[G.node.get(node2)['cluster']]);
     if (intersection.length<1){
         return true;
     }
@@ -172,8 +232,8 @@ function mergeClusters(clusters, clusterCameras, oldClusterNode, newClusterNode)
     });
 
     // reassign nodes + colors
-    clusters[newClusterId] = clusters[newClusterId].concat(clusters[oldClusterId]) // move nodes from old cluster to new cluster
-    clusterCameras[newClusterId] = clusterCameras[newClusterId].concat(clusterCameras[oldClusterId]) // move colors from old cluster to new cluster
+    clusters[newClusterId] = clusters[newClusterId].concat(clusters[oldClusterId]); // move nodes from old cluster to new cluster
+    clusterCameras[newClusterId] = clusterCameras[newClusterId].concat(clusterCameras[oldClusterId]); // move colors from old cluster to new cluster
 
     // delete old cluster
     clusters[oldClusterId] = undefined;
@@ -181,7 +241,21 @@ function mergeClusters(clusters, clusterCameras, oldClusterNode, newClusterNode)
 }
 
 
-
+function computeCentroids(clusters, G, verbose=false){
+    centroids = [];
+    clusters.forEach((cluster)=>{
+        let xPositions = 0;
+        let yPositions = 0;
+        console.log(cluster);
+        cluster.forEach((node)=>{
+            xPositions += G.node.get(node)['position'][0];
+            yPositions += G.node.get(node)['position'][1];
+        });
+        centroids.push([xPositions/cluster.length,yPositions/cluster.length]);
+    });
+    if(verbose){console.log(centroids);}
+    return centroids;
+}
 
 // return edges sorted by weight ascending
 function sortEdges(G) { 
@@ -204,6 +278,8 @@ function differentCamera(node1, node2) {
 
 // returns array with intersecting elements
 function findIntersection(arr1, arr2) {
+    //console.log(arr1);
+    //console.log(arr2);
     return arr1.filter(element => arr2.includes(element));
 }
 
