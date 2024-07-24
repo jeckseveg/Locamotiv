@@ -20,7 +20,8 @@ video_paths = {
                 4:{"left":"../static/data/chase_1/sensor_4/video/left_quarter.mp4",
                     "right":"../static/data/chase_1/sensor_4/video/right_quarter.mp4"}}
 
-ground_points = read_list_from_json(ground_points_path)
+#ground_points = read_list_from_json(ground_points_path)
+ground_points = None
 
 @app.route("/", methods=["GET", "POST"])
 def home():
