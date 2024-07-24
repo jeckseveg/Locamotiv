@@ -7,7 +7,7 @@ function clusterFrame(groundPoints, frameIndex, maxDistance, minPoints, activate
     let clusters = [];
     let clusterCameras = [];
     let activeCameras = processActivatedValues(activatedValues);
-    console.log(activatedValues);
+
     // create graph with initial edges and cluster nodes
     G = createGraph(G, frameGroundPoints, maxDistance, activeCameras); // create base graph with initial connections
     G = createClusters(G, clusters, clusterCameras, verbose=false); // create clustered graph
@@ -91,7 +91,6 @@ function createClusters(G, clusters, clusterCameras, verbose=false) {
                 if (verbose){
                     console.log("valid merge");
                     console.log(clusterCameras[G.node.get(node1)['cluster']]),console.log(clusterCameras[G.node.get(node2)['cluster']]);
-                    
                 }
             }
             else{
@@ -104,7 +103,7 @@ function createClusters(G, clusters, clusterCameras, verbose=false) {
 
         // if one or more nodes is clustered then check if valid merge
         if (G.node.get(node1)['cluster'] !== undefined && G.node.get(node2)['cluster'] === undefined) {
-            initializeSoloCluster(clusters, clusterCameras, node2, G);
+            initializeSoloCluster(clusters, clusterCameras, node2, G); // add the unassigned node to its own cluster
             if (checkClusters(clusters, clusterCameras, node1, node2, G)){ // check color validity
                 mergeClusters(clusters, clusterCameras, node2, node1, G);
                 if (verbose){
@@ -119,8 +118,10 @@ function createClusters(G, clusters, clusterCameras, verbose=false) {
                     }
             }
         }
+
+        // if one or more nodes is clustered then check if valid merge
         if (G.node.get(node1)['cluster'] === undefined && G.node.get(node2)['cluster'] !== undefined) {
-            initializeSoloCluster(clusters, clusterCameras, node1, G);
+            initializeSoloCluster(clusters, clusterCameras, node1, G); // add the unassigned node to its own cluster
             if (checkClusters(clusters, clusterCameras, node1, node2, G)){ // check color validity
                 mergeClusters(clusters, clusterCameras, node1, node2, G);
                 if (verbose){

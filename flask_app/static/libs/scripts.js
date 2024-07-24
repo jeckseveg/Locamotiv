@@ -188,16 +188,16 @@ function toggle_boxes() {
 function toggle_ground_points() {
   // turn on/off
   var ground_points_button = document.getElementById("toggle-ground-points");
-  console.log(ground_points_button.getAttribute("activated")==="True")
-  if (ground_points_button.getAttribute("activated")==="True"){
+  console.log(ground_points_button.getAttribute("activated")==="true")
+  if (ground_points_button.getAttribute("activated")==="true"){
     ground_points_button.style.backgroundColor = "#533"
-    ground_points_button.setAttribute('activated','False')
+    ground_points_button.setAttribute('activated','false')
     ground_points_active = false
   }
   // turn off/on
   else{
     ground_points_button.style.backgroundColor = "#333"
-    ground_points_button.setAttribute('activated','True')
+    ground_points_button.setAttribute('activated','true')
     ground_points_active = true
   }
   updateSVG();
@@ -207,17 +207,17 @@ function toggle_ground_points() {
 function toggle_centroids() {
   // turn on/off
   var centroidButton = document.getElementById("toggle-centroids");
-  console.log(centroidButton.getAttribute("activated")==="True")
-  if (centroidButton.getAttribute("activated")==="True"){
+  console.log(centroidButton.getAttribute("activated")==="true")
+  if (centroidButton.getAttribute("activated")==="true"){
     centroidButton.style.backgroundColor = "#533";
-    centroidButton.setAttribute('activated','False');
+    centroidButton.setAttribute('activated','false');
     centroidButton.style.opacity = 1.0;
     centroidsActive = false;
   }
   // turn off/on
   else{
     centroidButton.style.backgroundColor = "#333";
-    centroidButton.setAttribute('activated','True');
+    centroidButton.setAttribute('activated','true');
     centroidButton.style.opacity = 1.0;
     centroidsActive = true;
   }
@@ -247,7 +247,7 @@ function formatTime(currentTime, totalDuration) {
 
 function createGraph(frameTransformedPoints, threshold) {
   let G = new jsnx.Graph();
-  let colors = {0: 'red', 1: '#00CC66', 2: '#3399FF', 3: 'orange', 4: '#CC33CC', 5: 'yellow', 6: 'white', 7: '#ff9999'};
+  let colors = {0: 'red', 1: '#00CC66', 2: '#3399FF', 3: '#ff8133', 4: '#CC33CC', 5: '#e3b024', 6: '#ffffff', 7: '#ff9999'};
   let positionDict = {};
   let nodeId = 0;
 
