@@ -6,6 +6,8 @@
 <script src="static/libs/javascript_clustering.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.js" integrity="sha512-f26fxKZJiF0AjutUaQHNJ5KnXSisqyUQ3oyfaoen2apB1wLa5ccW3lmtaRe2jdP5kh4LF2gAHP9xQbx7wYhU5w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
 
 <!-- load ground points json  -->
@@ -17,6 +19,8 @@ let groundPoints; // Declare globally
 })();
 </script>
 
+
+
  <head>
    <meta charset="utf-8">
    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -24,8 +28,7 @@ let groundPoints; // Declare globally
    <meta name="author" content="Jack Savage">
    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
    <link rel="stylesheet" href="static/libs/style.css">
-   <title>Data Dashboard</title>
- </head>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.css" integrity="sha512-4OzqLjfh1aJa7M33b5+h0CSx0Q3i9Qaxlrr1T/Z+Vz+9zs5A7GM3T3MFKXoreghi3iDOSbkPMXiMBhFO7UBW/g==" crossorigin="anonymous" referrerpolicy="no-referrer" /> </head>
 
  <!-- INFO AND ABOUT SECTIONS -->
  <body>
@@ -89,7 +92,6 @@ let groundPoints; // Declare globally
         </div>
         <div class="row">
           <div class="column">
-            Each colored dot represents
           </div>
         </div>
         <!-- Button controls -->
@@ -202,7 +204,7 @@ let groundPoints; // Declare globally
       <!-- Right section -->
       <div class="right-content" id="right_section">
         <!-- Video Container -->
-        <div class="video box" style="padding-bottom: 20px;">
+        <div id="video_box" class="video box" style="padding-bottom: 20px;">
           <!-- <canvas id="videoCanvas"></canvas> -->
           <div class='row'>
             <div class='column'>
@@ -297,20 +299,11 @@ let groundPoints; // Declare globally
 
         <!-- play/pause + scrubbing + video time-->
         <script type="text/javascript">
-          const fps = 14.403
-          //scrubbing
-          $(document).ready(function () {
-            var videos = $("video"); 
-            var $scrubber = $(scrubber);
-            var $progress = $(progress);
-            
-            for (i = 0; i<videos.length; i++){
-              videos[i].addEventListener("timeupdate", videoTimeUpdateHandler);
-            }
-              
-            $scrubber.bind("mousedown", scrubberMouseDownHandler);
-            
-            function videoTimeUpdateHandler(e) { 
+          var videos = $("video"); 
+          var $scrubber = $(scrubber);
+          var $progress = $(progress);
+
+          function videoTimeUpdateHandler(e) { 
                 var video = videos[0]; 
                 var percent = video.currentTime / video.duration;
                 updateProgressWidth(percent);     
@@ -334,6 +327,20 @@ let groundPoints; // Declare globally
                 videos[i].currentTime = percent * videos[i].duration;
               }
             }
+          const fps = 14.403
+          //scrubbing
+          $(document).ready(function () {
+            var videos = $("video"); 
+            var $scrubber = $(scrubber);
+            var $progress = $(progress);
+            
+            for (i = 0; i<videos.length; i++){
+              videos[i].addEventListener("timeupdate", videoTimeUpdateHandler);
+            }
+              
+            $scrubber.bind("mousedown", scrubberMouseDownHandler);
+            
+            
           });
 
         // display video time //
@@ -385,9 +392,36 @@ let groundPoints; // Declare globally
           frameUpdateEngine(0, groundPoints);;
           isPlaying = !isPlaying;
         });
+
+        const intro = introJs();
+        intro.setOptions({
+          steps: [
+            {
+              intro: 'Welcome to my website',
+            },
+            {
+              element: "#video_box",
+              intro: "Sample text",
+            }
+
+          ]
+        }).onchange(function() {
+          console.log(this._currentStep)
+          if (this._currentStep === 0) {
+            console.log("hi");
+          }
+          if (this._currentStep === 1) {
+            //scrub to part of video with all videos playing
+            //this._introItems[this._currentStep].stepFunction()
+            updateProgressWidth(0.7);
+            updateVideoTime(0.7);
+          }
+        }).start();
       </script>
+
         <!-- camera selector -->
         <div class ="button-container">
+         
           <button activated=true>Toggle 1</button>
           <button activated=true>Toggle 2</button>
           <button activated=true>Toggle 3</button>
@@ -415,6 +449,7 @@ let groundPoints; // Declare globally
         </div>
       </div>
     </div> 
+
   </div>
 </body>
 </html>
