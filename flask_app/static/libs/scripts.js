@@ -128,7 +128,7 @@ async function frameUpdateEngine(timestamp, ground_points) {
     // create payload for flask
     var newButtons = document.querySelectorAll('.button-container button');
     var activatedValues = Array.from(newButtons).map(button => button.getAttribute("activated"));
-
+    //var max_dist = 
     clusteredPoints = clusterFrame(groundPoints, currentFrame, max_dist, minPoints, activatedValues, verbose=true);
     console.log("graph data")
     console.log(clusteredPoints)
@@ -205,7 +205,7 @@ function toggle_ground_points() {
 
 // toggle centroids on svg graph
 function toggle_centroids() {
-  // turn on/off
+  // turn off
   var centroidButton = document.getElementById("toggle-centroids");
   console.log(centroidButton.getAttribute("activated")==="true")
   if (centroidButton.getAttribute("activated")==="true"){
@@ -214,7 +214,7 @@ function toggle_centroids() {
     centroidButton.style.opacity = 1.0;
     centroidsActive = false;
   }
-  // turn off/on
+  // turn on
   else{
     centroidButton.style.backgroundColor = "#333";
     centroidButton.setAttribute('activated','true');
@@ -302,4 +302,49 @@ async function loadGroundPoints(){
     console.error("Error:", error);
   }
   return groundPoints;
+}
+
+// step 1 function (log console test)
+function introFunction1(){
+  console.log("fire");
+}
+
+// animate the max dist slider up for intro demo
+function incrementMaxDistSlider(i) {
+  setTimeout(function() {
+    if (i<8){
+      let temp_max_dist = i*10
+      document.getElementById("max-dist-slider").value = temp_max_dist;
+      document.getElementById("max-dist-slider-value").textContent = temp_max_dist;
+      max_dist = temp_max_dist;
+      frameUpdateEngine(0, groundPoints);
+    }
+    if (i>=8){
+      let temp_max_dist = 70-10*(i-7)
+      document.getElementById("max-dist-slider").value = temp_max_dist;
+      document.getElementById("max-dist-slider-value").textContent = temp_max_dist;
+      max_dist = temp_max_dist;
+      frameUpdateEngine(0, groundPoints);
+    }
+  }, 500*i);
+}
+
+// animate the max dist slider up for intro demo
+function incrementMinPointsSlider(i) {
+  setTimeout(function() {
+    if (i<8){
+      let temp_max_dist = i*10
+      document.getElementById("max-dist-slider").value = temp_max_dist;
+      document.getElementById("max-dist-slider-value").textContent = temp_max_dist;
+      max_dist = temp_max_dist;
+      frameUpdateEngine(0, groundPoints);
+    }
+    if (i>=8){
+      let temp_max_dist = 70-10*(i-7)
+      document.getElementById("max-dist-slider").value = temp_max_dist;
+      document.getElementById("max-dist-slider-value").textContent = temp_max_dist;
+      max_dist = temp_max_dist;
+      frameUpdateEngine(0, groundPoints);
+    }
+  }, 500*i);
 }
