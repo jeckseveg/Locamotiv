@@ -84,23 +84,22 @@ async function updateSVG() {
         .attr("r", 4)
         .attr("fill",function (d) { return colorFunc(d.camera); } )
         .style('opacity', opacity);
+  
+    // remove old lines
+    g.selectAll("line").remove();
 
-    // paths for edges
-    var link = d3.linkHorizontal()
-          .source(function(d) {
-              return [nodeObject[d[0]]['position'][0]+x_adjust, nodeObject[d[0]]['position'][1]+y_adjust];
-          })
-          .target(function(d) {
-              return [nodeObject[d[1]]['position'][0]+x_adjust, nodeObject[d[1]]['position'][1]+y_adjust];
-          });
-    d3.select("#svg-id") 
-      .selectAll("path")
-      .data(edgeArray)
-      .join("path")
-      .attr("stroke-width", 5)
-      .attr("d", link)
-      .style("opacity",opacity)
-      //.classed("link", true);
+    g 
+    .selectAll("path")
+    .data(edgeArray)
+    .enter()
+    .append("line")
+      .style("stroke", "black")
+      .style("stroke-width", 1.35)
+      .attr("x1", function(d) { return nodeObject[d[0]]['position'][0] + x_adjust; })
+      .attr("y1", function(d) { return nodeObject[d[0]]['position'][1] + y_adjust; })
+      .attr("x2", function(d) { return nodeObject[d[1]]['position'][0] + x_adjust; })
+      .attr("y2", function(d) { return nodeObject[d[1]]['position'][1] + y_adjust; })
+    .style("opacity", opacity);
   }
 
   if (centroidsActive){
