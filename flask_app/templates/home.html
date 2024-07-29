@@ -27,7 +27,7 @@ let groundPoints; // Declare globally
    <meta name="description" content="Data Dashboard">
    <meta name="author" content="Jack Savage">
    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-   <!-- <link rel="icon" type="image/x-icon" href="../static/images/locamotiv_logo.png"> -->
+   <link rel="icon" type="image/x-icon" href="../static/images/locamotiv_logo.png">
    <link rel="stylesheet" href="static/libs/style.css">
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/introjs.css" integrity="sha512-4OzqLjfh1aJa7M33b5+h0CSx0Q3i9Qaxlrr1T/Z+Vz+9zs5A7GM3T3MFKXoreghi3iDOSbkPMXiMBhFO7UBW/g==" crossorigin="anonymous" referrerpolicy="no-referrer" /> </head>
 
@@ -64,7 +64,7 @@ let groundPoints; // Declare globally
         <div class='row'>
           <div class="column"><button id="toggle-centroids" activated=true>Toggle Centroids</button></div><!-- >Localize detections</button> -->
           <div class="column"><button id="toggle-ground-points" activated=true >Toggle Points</button></div>
-          <div class="column"><button id="toggle-boxes" activated=false >Toggle Boxes</button></div>
+          <!-- <div class="column"><button id="toggle-boxes" activated=false >Toggle Boxes</button></div> -->
           
         </div>
         <div class="row">
@@ -467,7 +467,7 @@ let groundPoints; // Declare globally
             max_dist = 40;
             frameUpdateEngine(0, groundPoints);
             
-            for (let i=0; i<14; i++) {
+            for (let i=0; i<11; i++) {
               incrementMaxDistSlider(i); // animate the max dist slider to go up and down
             }  
           }
