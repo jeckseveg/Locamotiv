@@ -70,7 +70,7 @@ async function updateSVG() {
 
   // clear svg
   svg.selectAll("circle").remove();
-  svg.selectAll("path").remove();
+  svg.selectAll("line").remove();
 
   // only if ground points are being displayed
   if(ground_points_active){
@@ -85,11 +85,9 @@ async function updateSVG() {
         .attr("fill",function (d) { return colorFunc(d.camera); } )
         .style('opacity', opacity);
   
-    // remove old lines
-    g.selectAll("line").remove();
+    
 
-    g 
-    .selectAll("path")
+    g.selectAll("path")
     .data(edgeArray)
     .enter()
     .append("line")
