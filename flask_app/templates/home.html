@@ -9,17 +9,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/intro.js/7.2.0/intro.js" integrity="sha512-f26fxKZJiF0AjutUaQHNJ5KnXSisqyUQ3oyfaoen2apB1wLa5ccW3lmtaRe2jdP5kh4LF2gAHP9xQbx7wYhU5w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 
-
-<!-- load ground points json  -->
+<!-- startup scripts  -->
 <script> 
+// loading ground points
 let groundPoints; // Declare globally
-
 (async () => {
   groundPoints = await loadGroundPoints();
 })();
+
+// launch loading modal
+$(window).load(function() {      //Do the code in the {}s when the window has loaded 
+  $("#loader").remove();  //Fade out the #loader div
+  console.log("finished loading")
+});
+
 </script>
-
-
 
  <head>
    <meta charset="utf-8">
@@ -33,11 +37,18 @@ let groundPoints; // Declare globally
    <title>Locamotiv</title>
  <!-- INFO AND ABOUT SECTIONS -->
  <body>
-    <div class="about">
-      <h1 style="text-align:center;">Locamotiv: Interactive Multi-Camera Localization Mapping</h1>
-      <h4 style="text-align:center;">The code can be found on Github <a href="https://github.com/jeckseveg/interactive_localization">here</a></h4>
-      <h4 style="text-align:center;">The StreetAware dataset can be found <a href="https://drive.google.com/drive/folders/1BPtiIF8gBOoZANAGkwDjJUYakpCUYHM1">here</a></h4>
+  <div id="loader" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p>Loading content...</p>
     </div>
+  
+  </div>
+  <div class="about">
+    <h1 style="text-align:center;">Locamotiv: Interactive Multi-Camera Localization Mapping</h1>
+    <h4 style="text-align:center;">The code can be found on Github <a href="https://github.com/jeckseveg/interactive_localization">here</a></h4>
+    <h4 style="text-align:center;">The StreetAware dataset can be found <a href="https://drive.google.com/drive/folders/1BPtiIF8gBOoZANAGkwDjJUYakpCUYHM1">here</a></h4>
+  </div>
 
     <script>
     const express = require('express')
@@ -393,6 +404,8 @@ let groundPoints; // Declare globally
           frameUpdateEngine(0, groundPoints);;
           isPlaying = !isPlaying;
         });
+        window.addEventListener("load", (event) => {
+  console.log("page is fully loaded");
 
         const intro = introJs();
         intro.setOptions({
@@ -438,17 +451,17 @@ let groundPoints; // Declare globally
             },
             { // step 9
               element: "#left_section",
-              intro: "This relates to the concepts of \"precision vs recall\" and \"sensitivity vs specificity\" in machine learning systems, which are discussed in further detail at <a href=\"https://towardsdatascience.com/should-i-look-at-precision-recall-or-specificity-sensitivity-3946158aace1\" target=\"_blank\" rel=\"noopener noreferrer\">this blog post.</a>"
+              intro: "This tradeoff relates to the concepts of \"precision vs recall\" and \"sensitivity vs specificity\" in machine learning systems, which are discussed in further detail at <a href=\"https://towardsdatascience.com/should-i-look-at-precision-recall-or-specificity-sensitivity-3946158aace1\" target=\"_blank\" rel=\"noopener noreferrer\">this blog post.</a>"
             },
             { // step 10
               element: "#right_section",
-              intro: "Individiual cameras can alsobe turned on and off to observe their individual impacts."
+              intro: "Individiual cameras can also be turned on and off to observe their individual impacts."
             },
             { // step 11
-              intro: 'Labelling video with true ground locations is impractical for assessing such a system\'s accuracy. An interactive, visual approach allows for an intuitive and clear manual evaluation and tuning of the system.',
+              intro: 'Labelling video with true ground locations is impractical for validating such a system\'s accuracy. An interactive, visual approach provides an intuitive and clear transparent evaluation and tuning of the system, even on the most recently captured data.',
             },            
             { // step 12
-              intro: 'In the future, users will be able to upload, configure, and experiment with their own videos and location images. Starter code and predicted location data will also be available to download for developers to use in downstream tasks such as real-time applications or static time series analysis.',
+              intro: 'In the future, users will be able to upload, configure, and experiment with their own videos and location images. Starter code and final predictions will also be available to download for technical users for downstream tasks such as real-time applications or static time series analysis.',
             },
           ]
         }).onchange(function() {
@@ -513,6 +526,7 @@ let groundPoints; // Declare globally
             frameUpdateEngine(0, groundPoints);
           }
         }).start();
+      });
       </script>
 
         <!-- camera selector -->
