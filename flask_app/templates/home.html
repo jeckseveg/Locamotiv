@@ -39,7 +39,6 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
  <body>
   <div id="loader" class="modal">
     <div class="modal-content">
-      <span class="close">&times;</span>
       <p>Loading content...</p>
     </div>
   
@@ -80,14 +79,14 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
         </div>
         <div class="row">
           <div class="column">
-            <div class="slider-container">
+            <div class="slider-container" id="centroid-slider-container">
               <label for="centroid-slider">Min Centroid Points</label>
               <input type="range" id="centroid-slider" min="1" max="8" value="2" class="slider" >
               <span id="centroid-slider-value">2</span>
             </div>
           </div>
           <div class="column">
-            <div class="slider-container">
+            <div class="slider-container"  id="max-dist-slider-container">
               <label for="max-dist-slider">Max Clustering Distance</label>
               <input type="range" id="max-dist-slider" min="0" max="70" value="40" class="slider" >
               <span id="max-dist-slider-value">40</span>
@@ -415,52 +414,63 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             },
             { // step 1
               element: "#video_box",
-              intro: "This demo uses pedestrian traffic footage from the freely available <a href=\"https://www.w3schools.com\">StreetAware</a> dataset. Each video shows a different angle of the same intersection in Brooklyn"
+              intro: "This demo uses pedestrian traffic footage from the freely available <a href=\"https://www.w3schools.com\">StreetAware</a> dataset. Each video shows a different angle of the same intersection in Brooklyn",
+              position: "left",
             },
             { // step 2
               element: "#video_box",
-              intro: "First, we run a pedestrian detection model on the raw footage. Individuals identified by the system are shown in color-coded boxes."
+              intro: "First, we run a pedestrian detection model on the raw footage. Individuals identified by the system are shown in color-coded boxes.",
+              position: "left",
             },
             { // step 3
               element: "#video_box",
-              intro: "Note that these are predictions and not true locations - they may be prone to errors. Combining these potentialy messy results from multiple cameras allows us to generate a more robust final prediciton."
+              intro: "Note that these are predictions and not true locations - they may be prone to errors. Combining these potentialy messy results from multiple cameras allows us to generate a more robust final prediciton.",
+              position: "left",
             },
             { // step 4
               element:"#topdown",
-              intro: "The initial detections are projected as dots on a topdown 2D view of the intersection. Each dot is color-coded according to its corresponding camera."
+              intro: "The initial detections are projected as dots on a topdown 2D view of the intersection. Each dot is color-coded according to its corresponding camera.",
+              position: "right",
             },
             { // step 5
               element: "#left_section",
-              intro: "Dots are then clustered using a custom community detection algorithm. You can try adjusting the maximum connection distance using the \"Max Clustering Distance\" slider."
+              intro: "Dots are then clustered using a custom community detection algorithm. You can try adjusting the maximum connection distance using the \"Max Clustering Distance\" slider.",
+              position: "right",  
             },
             { // step 6
               element: "#left_section",
-              intro: "By taking the average position (or centroid) of each community, we extract a single location from the merged points"
+              intro: "By taking the average position (or centroid) of each community, we extract a single location from the merged points",
+              position: "right",
             },
             { // step 7
               element: "#left_section",
-              intro: "Adjusting the minimum number of points required to create a centroid tunes the required confidence to register a final prediction."
+              intro: "Adjusting the minimum number of points required to create a centroid tunes the required confidence to register a final prediction.",
+              position: "right",
             },
             { // step 8
               element: "#left_section",
-              intro: "With a higher minimum, only pedestrians visible to most cameras will be registered. This yields a high level of confidence but discards possible pedestrians outside the core area of interest (striped crosswalk in this instance)"
-            },
-            { // step 9
-              element: "#left_section",
-              intro: "Lower minimums capture detections from a wider area, but will be more prone to variance and outliers in final result."
-            },
-            { // step 9
-              element: "#left_section",
-              intro: "This tradeoff relates to the concepts of \"precision vs recall\" and \"sensitivity vs specificity\" in machine learning systems, which are discussed in further detail at <a href=\"https://towardsdatascience.com/should-i-look-at-precision-recall-or-specificity-sensitivity-3946158aace1\" target=\"_blank\" rel=\"noopener noreferrer\">this blog post.</a>"
+              intro: "With a higher minimum, only pedestrians visible to most cameras will be registered. This yields a high level of confidence but discards possible pedestrians outside the core area of interest (striped crosswalk in this instance)",
+              position: "right",
             },
             { // step 10
-              element: "#right_section",
-              intro: "Individiual cameras can also be turned on and off to observe their individual impacts."
+              element: "#left_section",
+              intro: "Lower minimums capture detections from a wider area, but will be more prone to variance and outliers in final result.",
+              position: "right",
             },
             { // step 11
+              element: "#left_section",
+              intro: "This tradeoff relates to the concepts of \"precision vs recall\" and \"sensitivity vs specificity\" in machine learning systems, which are discussed in further detail at <a href=\"https://towardsdatascience.com/should-i-look-at-precision-recall-or-specificity-sensitivity-3946158aace1\" target=\"_blank\" rel=\"noopener noreferrer\">this blog post.</a>",
+              position: "right",
+            },
+            { // step 12
+              element: "#right_section",
+              intro: "Individiual cameras can also be turned on and off to observe their individual impacts.",
+              position: "right",
+            },
+            { // step 13
               intro: 'Labelling video with true ground locations is impractical for validating such a system\'s accuracy. An interactive, visual approach provides an intuitive and clear transparent evaluation and tuning of the system, even on the most recently captured data.',
             },            
-            { // step 12
+            { // step 14
               intro: 'In the future, users will be able to upload, configure, and experiment with their own videos and location images. Starter code and final predictions will also be available to download for technical users for downstream tasks such as real-time applications or static time series analysis.',
             },
           ]
@@ -486,6 +496,11 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             frameUpdateEngine(0, groundPoints);
           }
           if (this._currentStep === 5) { // show the communities for max dist = 40
+
+            // highlight max dist slider
+            let maxDistSliderContainer = document.getElementById("max-dist-slider-container");
+            maxDistSliderContainer.style.border = '2px solid red';
+
             document.getElementById("max-dist-slider").value = 40;
             document.getElementById("max-dist-slider-value").textContent = 40;
             max_dist = 40;
@@ -497,6 +512,10 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
           }
           if (this._currentStep === 6) { // show only the projections (toggle centroids and max clustering distance to 0)
             
+            // unhighlight max dist slider
+            let maxDistSliderContainer = document.getElementById("max-dist-slider-container");
+            maxDistSliderContainer.style.border = 'none';
+
             // reset max dist slider
             document.getElementById("max-dist-slider").value = 40;
             document.getElementById("max-dist-slider-value").textContent = 40;
@@ -510,6 +529,18 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             centroidsActive = true;
             frameUpdateEngine(0, groundPoints);
           }
+          if (this._currentStep === 7){
+            
+            // highlight min centroid points slider
+            let centroidSliderContainer = document.getElementById("centroid-slider-container");
+            centroidSliderContainer.style.border = '2px solid red';
+
+            let groundPointsButton = document.getElementById("toggle-ground-points");
+            groundPointsButton.style.backgroundColor = "#533";
+            groundPointsButton.setAttribute('activated','false');
+            ground_points_active = false;
+            frameUpdateEngine(0, groundPoints);
+          }
           if (this._currentStep === 8) { // set min centroid points to 5
             document.getElementById("centroid-slider").value = 5;
             document.getElementById("centroid-slider-value").textContent = 5;
@@ -520,9 +551,19 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             document.getElementById("centroid-slider-value").textContent = 1;
             frameUpdateEngine(0, groundPoints);
           }
-          if (this._currentStep === 10) { // reset min centroid points to 2
+          if (this._currentStep === 10) { // reset min centroid points to 2 and turn on ground points
+            
+            // unhighlight min centroid points slider
+            let centroidSliderContainer = document.getElementById("centroid-slider-container");
+            centroidSliderContainer.style.border = 'none';
+            
+            // reset centroid slider and turn  ground points back on
             document.getElementById("centroid-slider").value = 2;
             document.getElementById("centroid-slider-value").textContent = 2;
+            let groundPointsButton = document.getElementById("toggle-ground-points");
+            groundPointsButton.style.backgroundColor = "#333";
+            groundPointsButton.setAttribute('activated','true');
+            ground_points_active = true;
             frameUpdateEngine(0, groundPoints);
           }
         }).start();

@@ -229,18 +229,3 @@ label {
   border-radius: 7px; /* Adjust the value to control the radius */
   text-align: center; /* Center the text within the modal content */
 }
-
-/* The Close Button */
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
