@@ -17,6 +17,8 @@ let groundPoints; // Declare globally
   groundPoints = await loadGroundPoints();
 })();
 
+var outputObject = {};
+
 // launch loading modal
 $(window).load(function() {      //Do the code in the {}s when the window has loaded 
   $("#loader").remove();  //Fade out the #loader div
@@ -414,7 +416,7 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             },
             { // step 1
               element: "#video_box",
-              intro: "This demo uses pedestrian traffic footage from the freely available <a href=\"https://www.w3schools.com\">StreetAware</a> dataset. Each video shows a different angle of the same intersection in Brooklyn",
+              intro: "This demo uses pedestrian traffic footage from the freely available <a href=\"https://www.mdpi.com/1424-8220/23/7/3710\" target=\"_blank\" rel=\"noopener noreferrer\">StreetAware</a> dataset. Each video shows a different angle of the same intersection in Brooklyn",
               position: "left",
             },
             { // step 2
@@ -424,7 +426,7 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             },
             { // step 3
               element: "#video_box",
-              intro: "Note that these are predictions and not true locations - they may be prone to errors. Combining these potentialy messy results from multiple cameras allows us to generate a more robust final prediciton.",
+              intro: "Note that these are predictions and not true locations - they may be prone to errors. Combining these potentialy messy results from multiple cameras allows us to generate a more robust final prediction.",
               position: "left",
             },
             { // step 4
@@ -434,7 +436,7 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             },
             { // step 5
               element: "#left_section",
-              intro: "Dots are then clustered using a custom community detection algorithm. You can try adjusting the maximum connection distance using the \"Max Clustering Distance\" slider.",
+              intro: "Dots are then clustered into communities using a custom graph algorithm. You can try adjusting the maximum connection distance using the \"Max Clustering Distance\" slider.",
               position: "right",  
             },
             { // step 6
@@ -567,6 +569,9 @@ $(window).load(function() {      //Do the code in the {}s when the window has lo
             frameUpdateEngine(0, groundPoints);
           }
         }).start();
+        intro.oncomplete(function () {
+          playButton.click()
+        });
       });
       </script>
 
