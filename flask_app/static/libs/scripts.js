@@ -129,6 +129,8 @@ async function frameUpdateEngine(timestamp, ground_points) {
     clusteredPoints = clusterFrame(groundPoints, currentFrame, max_dist, minPoints, activatedValues, verbose=true);
     console.log("graph data")
     console.log(clusteredPoints)
+    outputObject [timestamp] = clusteredPoints;
+    console.log(outputObject)
     
     updateSVG() // update the svg
   //}
@@ -344,4 +346,15 @@ function incrementMinPointsSlider(i) {
       frameUpdateEngine(0, groundPoints);
     }
   }, 500*i);
+}
+
+function downloadCentroids(outputObject, filename) {
+  const dataStr = JSON.stringify(outputObject);
+  const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+  const link = document.createElement('a');
+  link.href = dataUri;
+  link.download   
+ = filename;
+  link.click();
 }

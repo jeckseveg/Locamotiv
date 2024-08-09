@@ -44,6 +44,7 @@ function clusterFrame(groundPoints, frameIndex, maxDistance, minPoints, activate
 // create initial graph with all elements within distance connected
 function createGraph(G, frame, maxDistance, activeCameras) {
     let pointIndex = 0;
+
     frame.forEach((camera, cameraIndex) => { // iterate through each cameras data
         if (activeCameras[cameraIndex]) {
             camera.forEach((groundPoint) => { // iterate through each ground point in the camera
@@ -176,6 +177,8 @@ function checkClusters(clusters, clusterCameras, node1, node2, G, verbose=false)
         console.log("check clusters");
         console.log(G.node.get(node1));
         console.log(G.node.get(node2));
+        console.log(clusterCameras[G.node.get(node1)['cluster']])
+        console.log(clusterCameras[G.node.get(node2)['cluster']])
     }
     let intersection = findIntersection(clusterCameras[G.node.get(node1)['cluster']],
                                         clusterCameras[G.node.get(node2)['cluster']]);
@@ -189,7 +192,9 @@ function mergeClusters(clusters, clusterCameras, oldClusterNode, newClusterNode,
     oldClusterId = G.node.get(oldClusterNode)['cluster'];
     newClusterId = G.node.get(newClusterNode)['cluster'];
     oldClusterNodes = clusters[oldClusterId];
-
+    console.log("oldclusternodes: ")
+    console.log(oldClusterId)
+    console.log(clusters)
     // change all nodes properties to reflect new cluster
     oldClusterNodes.forEach(nodeId => {
         G.node.get(nodeId)['cluster'] = newClusterId;
@@ -207,8 +212,11 @@ function mergeClusters(clusters, clusterCameras, oldClusterNode, newClusterNode,
 
 function computeCentroids(clusters, G, minPoints, verbose=false){
     centroids = [];
+
+    // for each list of node ids in each cluster
     clusters.forEach((cluster)=>{
-        if (cluster.length>=minPoints){
+        if (cluster.length>=minPoints){ // make sure it meets minpoints threshold
+        // store node positions
         let xPositions = 0;
         let yPositions = 0;
         if(verbose){console.log(cluster);}
@@ -216,7 +224,7 @@ function computeCentroids(clusters, G, minPoints, verbose=false){
             xPositions += G.node.get(node)['position'][0];
             yPositions += G.node.get(node)['position'][1];
         });
-        centroids.push([xPositions/cluster.length,yPositions/cluster.length])};
+        centroids.push([xPositions/cluster.length,yPositions/cluster.length])}; // average the positions of nodes
     });
     if(verbose){console.log(centroids);}
     return centroids;
@@ -267,7 +275,12 @@ function differentCluster(node1, node2, G) {
 
 // returns array with intersecting elements
 function findIntersection(arr1, arr2) {
+    if (arr1 != undefined && arr2 != undefined){
     return arr1.filter(element => arr2.includes(element));
+    }
+    else{
+        return [];
+    }
 }
 
 // square euclidean distance between two points

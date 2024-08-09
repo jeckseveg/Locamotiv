@@ -24,8 +24,11 @@ ground_points = read_list_from_json(ground_points_path)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    print('render template home')
     return render_template('home.html', video_paths=video_paths)
+
+@app.route("/upload")
+def upload_page():
+   return render_template('upload.html')
 
 
 @app.route("/run_localization", methods = ['POST'])

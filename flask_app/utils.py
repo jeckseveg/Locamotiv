@@ -107,7 +107,6 @@ def compute_centroids(G,min_points):
         for node in G.adjacency():
             if len(node[1])==0:
                 centroids.append(G.nodes[node[0]]['position'])
-    #print(centroids)
     return centroids
 
 
