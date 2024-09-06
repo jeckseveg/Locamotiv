@@ -229,3 +229,10 @@ label {
   border-radius: 7px; /* Adjust the value to control the radius */
   text-align: center; /* Center the text within the modal content */
 }
+
+.homography-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  align-items: center; /* Center video vertically */
+}
